@@ -2,10 +2,9 @@ import { Component } from '@angular/core';
 
 @Component({
   selector: 'app-tabs',
-  templateUrl: 'tabs.page.html',
-  styleUrls: ['tabs.page.scss']
+  templateUrl: 'tab-container.page.html'
 })
-export class TabsPage {
+export class TabContainerPage {
 
   constructor() {}
 

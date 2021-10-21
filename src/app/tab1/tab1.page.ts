@@ -1,11 +1,8 @@
 import { Component } from '@angular/core';
-
-type Player = {
-  name: string;
-};
-type Category = {
-  description?: string;
-};
+import { Category } from '../model/category';
+import { Player } from '../model/player';
+import { GameService } from '../services/game.service';
+import { PlayerService } from '../services/player.service';
 
 @Component({
   selector: 'app-tab1',
@@ -41,5 +38,5 @@ export class Tab1Page {
     { description: 'Summe' },
   ];
 
-  constructor() {}
+  constructor(playerService: PlayerService, gameService: GameService) {}
 }

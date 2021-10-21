@@ -1,0 +1,17 @@
+.main-block > ion-row > ion-col {
+    border: 1px solid black;
+    border-collapse: collapse;
+    text-align: center;
+}
+
+.main-block > ion-row:first-child {
+    font-weight: bolder;
+    font-size: large;
+    background-color: rgba(var(--ion-color-secondary-rgb), 0.5);
+}
+
+.main-block ion-col:first-child{
+    font-weight: bold;
+    font-size: large;
+    background-color: rgba(var(--ion-color-secondary-rgb), 0.5);
+}

@@ -10,33 +10,16 @@ import { PlayerService } from '../services/player.service';
   styleUrls: ['tab1.page.scss'],
 })
 export class Tab1Page {
-  public players: Player[] = [
-    { name: 'Spieler 1' },
-    { name: 'Spieler 2' },
-    { name: 'Spieler 3' },
-    { name: 'Spieler 4' },
-    { name: 'Spieler 5' },
-    { name: 'Spieler 6' },
-  ];
+  public get players(): Player[] {
+    return this.playerService.players;
+  }
 
-  public categories: Category[] = [
-    { description: 'Einser' },
-    { description: 'Zweier' },
-    { description: 'Dreier' },
-    { description: 'Vierer' },
-    { description: 'Fünfer' },
-    { description: 'Sechser' },
-    {},
-    { description: 'Dreierpasch' },
-    { description: 'Viererpasch' },
-    { description: 'Full House' },
-    { description: 'Kleine Straße' },
-    { description: 'Große Straße' },
-    { description: 'Fünferpasch' },
-    { description: 'Chance' },
-    {},
-    { description: 'Summe' },
-  ];
+  public get categories(): Category[] {
+    return this.gameService.gameCategories;
+  }
 
-  constructor(playerService: PlayerService, gameService: GameService) {}
+  constructor(
+    private playerService: PlayerService,
+    private gameService: GameService
+  ) {}
 }

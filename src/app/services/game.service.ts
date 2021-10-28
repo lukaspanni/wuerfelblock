@@ -6,20 +6,20 @@ import { Category } from '../model/category';
 })
 export class GameService {
   private _gameCategories: Category[] = [
-    new Category('Einser'),
-    new Category('Zweier'),
-    new Category('Dreier'),
-    new Category('Vierer'),
-    new Category('Fünfer'),
-    new Category('Sechser'),
+    new Category('Einser', 5),
+    new Category('Zweier', 10),
+    new Category('Dreier', 15),
+    new Category('Vierer', 20),
+    new Category('Fünfer', 25),
+    new Category('Sechser', 30),
     new Category(),
-    new Category('Dreierpasch'),
-    new Category('Viererpasch'),
-    new Category('Full House'),
-    new Category('Kleine Straße'),
-    new Category('Große Straße'),
-    new Category('Fünferpasch'),
-    new Category('Chance'),
+    new Category('Dreierpasch', 30),
+    new Category('Viererpasch', 30),
+    new Category('Full House', undefined, 25),
+    new Category('Kleine Straße', undefined, 30),
+    new Category('Große Straße', undefined, 40),
+    new Category('Fünferpasch', undefined, 50),
+    new Category('Chance', 30),
     new Category(),
   ];
 

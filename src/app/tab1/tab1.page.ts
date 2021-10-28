@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { FormBuilder, FormGroup } from '@angular/forms';
 import { Category } from '../model/category';
 import { Player } from '../model/player';
 import { GameService } from '../services/game.service';
@@ -10,6 +11,7 @@ import { PlayerService } from '../services/player.service';
   styleUrls: ['tab1.page.scss'],
 })
 export class Tab1Page {
+
   public get players(): Player[] {
     return this.playerService.players;
   }
@@ -20,6 +22,7 @@ export class Tab1Page {
 
   constructor(
     private playerService: PlayerService,
-    private gameService: GameService
-  ) {}
+    private gameService: GameService,
+  ) {
+  }
 }

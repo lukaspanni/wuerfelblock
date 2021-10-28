@@ -1,16 +1,18 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { EnforceInputMaxDirective } from './enforce-input-max.directive';
+import { HideZeroPipe } from './hide-zero.pipe';
 
 
 
 @NgModule({
   declarations: [
-    EnforceInputMaxDirective
+    EnforceInputMaxDirective,
+    HideZeroPipe
   ],
   imports: [
     CommonModule
   ],
-  exports: [EnforceInputMaxDirective]
+  exports: [EnforceInputMaxDirective, HideZeroPipe]
 })
 export class UtilityModule { }

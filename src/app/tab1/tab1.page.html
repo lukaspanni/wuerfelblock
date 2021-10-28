@@ -22,17 +22,24 @@
         *ngFor="let player of players; let i = index"
         [size]="12/(players.length+1)"
       >
-        <ion-item *ngIf="category.description != null" lines="none">
-          <form>
+        <form>
+          <ion-item *ngIf="category.description != null" lines="none">
             <ion-input
+              *ngIf="category.maxPoints != undefined && category.fixedPoints == undefined"
               type="text"
-              [value]="player.getPoints(category)"
+              [value]="player.getPoints(category) | hideZero"
               (ionChange)="player.setPoints(category, $event.target)"
-              [max]="category.maxPoints" [input]="player.getPoints(category)"
+              [max]="category.maxPoints"
+              [input]="player.getPoints(category)"
             >
             </ion-input>
-          </form>
-        </ion-item>
+            <ion-checkbox
+              *ngIf="category.fixedPoints != undefined"
+              (ionChange)="player.setFixedPoints(category, $event.target)"
+            >
+            </ion-checkbox>
+          </ion-item>
+        </form>
       </ion-col>
     </ion-row>
     <ion-row>

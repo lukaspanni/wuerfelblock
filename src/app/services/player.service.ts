@@ -5,18 +5,32 @@ import { Player } from '../model/player';
   providedIn: 'root',
 })
 export class PlayerService {
-  private _players: Player[] = [
-    new Player('Spieler 1'),
-    new Player('Spieler 2'),
-    new Player('Spieler 3'),
-    new Player('Spieler 4'),
-    new Player('Spieler 5'),
-    new Player('Spieler 6'),
-  ];
+  private _players: Player[] = [];
+  private _setupComplete = false;
 
   public get players(): Player[] {
     return this._players;
   }
 
+  
+  public get setupComplete(): boolean{
+    return this._setupComplete;
+  }
+
   constructor() {}
+
+  public addPlayers(...players: Player[]) {
+    this._players.push(...players);
+  }
+
+  public completeSetup(){
+    if(this.players.length < 1) return;
+    this._setupComplete = true;
+  }
+
+  public reset() {
+    this._players = [];
+    this._setupComplete = false;
+  }
+
 }

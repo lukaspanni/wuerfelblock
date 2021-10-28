@@ -1,15 +1,59 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
-    <ion-title>
-      Tab 1
-    </ion-title>
+    <ion-title> Würfelblock </ion-title>
   </ion-toolbar>
 </ion-header>
-
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Tab 1</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content>
+  <ion-grid class="main-block" fixed>
+    <ion-row>
+      <ion-col [size]="12/(players.length+1)"></ion-col>
+      <ion-col *ngFor="let player of players" [size]="12/(players.length+1)"
+        >{{player.name}}</ion-col
+      >
+    </ion-row>
+    <ion-row *ngFor="let category of categories">
+      <ion-col [size]="12/(players.length+1)">
+        <!-- TODO Wrap Text nicely -->
+        <span *ngIf="category.description != null"
+          >{{category.description}}</span
+        >
+      </ion-col>
+      <ion-col
+        *ngFor="let player of players; let i = index"
+        [size]="12/(players.length+1)"
+      >
+        <div class="input-container">
+          <ion-item
+            lines="none"
+            *ngIf="category.maxPoints != undefined && category.fixedPoints == undefined"
+          >
+            <ion-input
+              type="number"
+              min="0"
+              [value]="player.getPoints(category) | hideZero"
+              (ionChange)="player.setPoints(category, $event.target)"
+              [max]="category.maxPoints"
+              [input]="player.getPoints(category)"
+            >
+            </ion-input>
+          </ion-item>
+          <ion-checkbox
+            *ngIf="category.fixedPoints != undefined"
+            (ionChange)="player.setFixedPoints(category, $event.target)"
+          >
+          </ion-checkbox>
+        </div>
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col [size]="12/(players.length+1)">Summe</ion-col>
+      <ion-col *ngFor="let player of players" [size]="12/(players.length+1)">
+        <ion-input
+          type="text"
+          disabled
+          [value]="player.totalPoints"
+        ></ion-input>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
 </ion-content>

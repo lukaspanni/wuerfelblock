@@ -1,0 +1,33 @@
+.main-block > ion-row > ion-col {
+  border: 1px solid black;
+  border-collapse: collapse;
+  text-align: center;
+}
+
+.main-block > ion-row:first-child {
+  font-weight: bolder;
+  font-size: large;
+  background-color: rgba(var(--ion-color-secondary-rgb), 0.5);
+}
+
+.main-block ion-col:first-child {
+  font-weight: bold;
+  font-size: large;
+  background-color: rgba(var(--ion-color-secondary-rgb), 0.5);
+}
+
+.main-block ion-input {
+  text-align: center;
+}
+
+ion-input input[type="number"]::-webkit-outer-spin-button,
+ion-input input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+@-moz-document url-prefix() {
+  ion-input input[type="number"] {
+    -moz-appearance: textfield !important;
+  }
+}

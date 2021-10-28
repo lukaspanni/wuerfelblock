@@ -4,7 +4,7 @@ import { TabContainerPage } from './tab-container.page';
 
 const routes: Routes = [
   {
-    path: 'games',
+    path: '',
     component: TabContainerPage,
     children: [
       {
@@ -18,11 +18,6 @@ const routes: Routes = [
       }
     ]
   },
-  {
-    path: '',
-    redirectTo: '/games/tab1',
-    pathMatch: 'full'
-  }
 ];
 
 @NgModule({

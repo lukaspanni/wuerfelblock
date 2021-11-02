@@ -11,6 +11,7 @@
     "lint": "ng lint --fix",
     "lint-ci": "ng lint",
     "e2e": "ng e2e",
+    "deploy-server": "ng build --configuration production && pscp -r www/ Server_Secure:wuerfelblock",
     "android": "ionic cordova run android",
     "android-build": "ionic cordova build android",
     "android-build-release": "ionic cordova build android --release --configuration production",

@@ -32,10 +32,11 @@
           "error",
           {
             "type": "attribute",
-            "prefix": "app",
             "style": "camelCase"
           }
-        ]
+        ],
+        "no-underscore-dangle": "off",
+        "eqeqeq": ["warn", "smart"]
       }
     },
     {

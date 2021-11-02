@@ -6,8 +6,8 @@ import { Pipe, PipeTransform } from '@angular/core';
 export class HideZeroPipe implements PipeTransform {
 
   transform(value: number): string {
-    if(value === 0) return " ";
-    return value.toString()
+    if(value === 0) {return ' ';}
+    return value.toString();
   }
 
 }

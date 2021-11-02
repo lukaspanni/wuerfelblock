@@ -12,7 +12,7 @@ export class PlayerService {
     return this._players;
   }
 
-  
+
   public get setupComplete(): boolean{
     return this._setupComplete;
   }
@@ -24,7 +24,7 @@ export class PlayerService {
   }
 
   public completeSetup(){
-    if(this.players.length < 1) return;
+    if(this.players.length < 1) {return;}
     this._setupComplete = true;
   }
 

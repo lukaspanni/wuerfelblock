@@ -14,7 +14,7 @@
     <ion-row *ngFor="let category of categories">
       <ion-col [size]="12/(players.length+1)">
         <!-- TODO Wrap Text nicely -->
-        <span *ngIf="category.description != null"
+        <span *ngIf="category.description !== null"
           >{{category.description}}</span
         >
       </ion-col>
@@ -25,7 +25,7 @@
         <div class="input-container">
           <ion-item
             lines="none"
-            *ngIf="category.maxPoints != undefined && category.fixedPoints == undefined"
+            *ngIf="category.maxPoints !== undefined && category.fixedPoints === undefined"
           >
             <ion-input
               type="number"
@@ -38,7 +38,7 @@
             </ion-input>
           </ion-item>
           <ion-checkbox
-            *ngIf="category.fixedPoints != undefined"
+            *ngIf="category.fixedPoints !== undefined"
             (ionChange)="player.setFixedPoints(category, $event.target)"
           >
           </ion-checkbox>

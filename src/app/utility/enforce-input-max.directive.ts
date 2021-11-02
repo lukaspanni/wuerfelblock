@@ -8,7 +8,7 @@ import { Directive, ElementRef, Input, OnChanges } from '@angular/core';
 })
 export class EnforceInputMaxDirective implements OnChanges{
   @Input() public max: number;
-  @Input() public input: number
+  @Input() public input: number;
 
   constructor(private element: ElementRef) {}
 
@@ -24,5 +24,5 @@ export class EnforceInputMaxDirective implements OnChanges{
       return;
     }
   }
-  
+
 }

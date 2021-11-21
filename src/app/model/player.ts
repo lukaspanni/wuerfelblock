@@ -66,7 +66,7 @@ export class Player {
   public subTotal(categories: Category[]): number {
     let sum = 0;
     this.points.forEach((value, key) => {
-      if (categories.includes(key)) sum += value.value;
+      if (categories.includes(key)) {sum += value.value;}
     });
     return sum;
   }

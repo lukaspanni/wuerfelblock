@@ -24,7 +24,7 @@ export class SetupCompleteGuard implements CanActivate {
     | Promise<boolean | UrlTree>
     | boolean
     | UrlTree {
-    if (!environment.production) return true;
+    if (!environment.production) {return true;}
     //Only allow to go to game if setup is complete
     if (!this.playerService.setupComplete) {
       this.router.navigate(['/setup']);

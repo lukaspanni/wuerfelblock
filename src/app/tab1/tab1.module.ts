@@ -6,6 +6,7 @@ import { Tab1Page } from './tab1.page';
 
 import { Tab1PageRoutingModule } from './tab1-routing.module';
 import { UtilityModule } from '../utility/utility.module';
+import { CategoryDisplayComponent } from './category-display/category-display.component';
 
 @NgModule({
   imports: [
@@ -13,8 +14,8 @@ import { UtilityModule } from '../utility/utility.module';
     CommonModule,
     FormsModule,
     Tab1PageRoutingModule,
-    UtilityModule
+    UtilityModule,
   ],
-  declarations: [Tab1Page]
+  declarations: [Tab1Page, CategoryDisplayComponent],
 })
 export class Tab1PageModule {}

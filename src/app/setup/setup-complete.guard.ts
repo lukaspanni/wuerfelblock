@@ -7,6 +7,7 @@ import {
   UrlTree,
 } from '@angular/router';
 import { Observable } from 'rxjs';
+import { environment } from 'src/environments/environment';
 import { PlayerService } from '../services/player.service';
 
 @Injectable({
@@ -23,10 +24,11 @@ export class SetupCompleteGuard implements CanActivate {
     | Promise<boolean | UrlTree>
     | boolean
     | UrlTree {
-      //Only allow to go to game if setup is complete
-      if(!this.playerService.setupComplete){
-        this.router.navigate(['/setup']);
-      }
+    if (!environment.production) return true;
+    //Only allow to go to game if setup is complete
+    if (!this.playerService.setupComplete) {
+      this.router.navigate(['/setup']);
+    }
     return true;
   }
 }

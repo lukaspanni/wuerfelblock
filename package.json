@@ -15,7 +15,9 @@
     "android": "ionic cordova run android",
     "android-build": "ionic cordova build android",
     "android-build-release": "ionic cordova build android --release --configuration production",
-    "android-live": "ionic cordova run android --livereload --consolelogs"
+    "android-live": "ionic cordova run android --livereload --consolelogs",
+    "preversion": "npm run lint-ci",
+    "postversion": "git push && git push --tags"
   },
   "private": true,
   "dependencies": {

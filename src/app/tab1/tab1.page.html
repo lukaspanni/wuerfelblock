@@ -6,23 +6,53 @@
 <ion-content>
   <ion-grid class="main-block" fixed>
     <ion-row>
-      <ion-col [size]="12/(players.length+1)"></ion-col>
-      <ion-col *ngFor="let player of players" [size]="12/(players.length+1)"
-        >{{player.name}}</ion-col
-      >
+      <ion-col [size]="columnWidth"></ion-col>
+      <ion-col *ngFor="let player of players" [size]="columnWidth">
+        {{player.name}}
+      </ion-col>
     </ion-row>
+
     <wb-category-display
       [players]="players"
       [categories]="topCategories"
-    ></wb-category-display>
+      [columnWidth]="columnWidth"
+    >
+    </wb-category-display>
+
+    <ion-row class="subtotal">
+      <ion-col [size]="columnWidth">Zwischensumme</ion-col>
+      <ion-col *ngFor="let player of players" [size]="columnWidth">
+        <ion-input
+          type="text"
+          disabled
+          [value]="player.subTotal(topCategories)"
+          (ionChange)="subTotalChange(player)"
+        >
+        </ion-input>
+      </ion-col>
+    </ion-row>
+
+    <ion-row class="bonus">
+      <ion-col [size]="columnWidth">Bonus</ion-col>
+      <ion-col *ngFor="let player of players" [size]="columnWidth">
+        <ion-input
+          type="text"
+          disabled
+          [value]="player.getPoints(bonus)"
+        ></ion-input>
+      </ion-col>
+    </ion-row>
 
     <wb-category-display
       [players]="players"
       [categories]="bottomCategories"
-    ></wb-category-display>
-    <ion-row>
-      <ion-col [size]="12/(players.length+1)">Summe</ion-col>
-      <ion-col *ngFor="let player of players" [size]="12/(players.length+1)">
+      [columnWidth]="columnWidth"
+    >
+    </wb-category-display>
+
+    <ion-row class="total">
+      <ion-col [size]="columnWidth">Summe</ion-col>
+      <ion-col *ngFor="let player of players" [size]="columnWidth">
         <ion-input
           type="text"
           disabled

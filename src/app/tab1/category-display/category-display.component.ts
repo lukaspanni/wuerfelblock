@@ -10,6 +10,17 @@ import { Player } from 'src/app/model/player';
 export class CategoryDisplayComponent {
   @Input() categories: Category[];
   @Input() players: Player[];
+  @Input() columnWidth: number;
 
   constructor() {}
+
+  public showInputField(category: Category): boolean {
+    return (
+      category.maxPoints !== undefined && category.fixedPoints === undefined
+    );
+  }
+
+  public showCheckbox(category: Category): boolean {
+    return category.fixedPoints !== undefined;
+  }
 }

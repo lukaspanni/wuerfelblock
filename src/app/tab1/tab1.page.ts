@@ -11,6 +11,9 @@ import { PlayerService } from '../services/player.service';
   encapsulation: ViewEncapsulation.None,
 })
 export class Tab1Page {
+  public bonus = new Category('Bonus', 35, 35);
+  private bonusThreshold = 63;
+
   public get players(): Player[] {
     return this.playerService.players;
   }
@@ -23,8 +26,20 @@ export class Tab1Page {
     return this.gameService.complexCategories;
   }
 
+  public get columnWidth(): number {
+    return 12 / (this.players.length + 1);
+  }
+
   constructor(
     private playerService: PlayerService,
     private gameService: GameService
   ) {}
+
+  public subTotalChange(player: Player): void {
+    if (player.subTotal(this.topCategories) >= this.bonusThreshold) {
+      player.setPoints(this.bonus, this.bonus.fixedPoints);
+    } else {
+      player.setPoints(this.bonus, 0);
+    }
+  }
 }

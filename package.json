@@ -12,7 +12,7 @@
     "lint-ci": "ng lint",
     "e2e": "ng e2e",
     "prepare-deploy": "ng build --configuration production &&  docker build -t wuerfelblock .",
-    "local-deploy": "docker run -d -p 8080:80 --name wuerfelblock-container wuerfelblock",
+    "local-deploy": "docker run --rm -d -p 8080:80 --name wuerfelblock-container wuerfelblock",
     "android": "ionic cordova run android",
     "android-build": "ionic cordova build android",
     "android-build-release": "ionic cordova build android --release --configuration production",

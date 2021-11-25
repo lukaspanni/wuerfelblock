@@ -5,14 +5,16 @@ import { Category } from '../model/category';
   providedIn: 'root',
 })
 export class GameService {
-  private _gameCategories: Category[] = [
+  private _singleNumberCategories: Category[] = [
     new Category('Einser', 5),
     new Category('Zweier', 10),
     new Category('Dreier', 15),
     new Category('Vierer', 20),
     new Category('Fünfer', 25),
     new Category('Sechser', 30),
-    new Category(),
+  ];
+
+  private _complexCategories: Category[] = [
     new Category('Dreierpasch', 30),
     new Category('Viererpasch', 30),
     new Category('Full House', undefined, 25),
@@ -20,11 +22,14 @@ export class GameService {
     new Category('Große Straße', undefined, 40),
     new Category('Fünferpasch', undefined, 50),
     new Category('Chance', 30),
-    new Category(),
   ];
 
-  public get gameCategories(): Category[] {
-    return this._gameCategories;
+  public get singleNumberCategories(): Category[] {
+    return this._singleNumberCategories;
+  }
+
+  public get complexCategories(): Category[] {
+    return this._complexCategories;
   }
 
   constructor() {}

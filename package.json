@@ -1,6 +1,6 @@
 {
   "name": "wuerfelblock",
-  "version": "0.0.1",
+  "version": "0.0.2-0",
   "author": "Lukas Panni",
   "homepage": "https://lukaspanni.de/",
   "scripts": {
@@ -11,11 +11,14 @@
     "lint": "ng lint --fix",
     "lint-ci": "ng lint",
     "e2e": "ng e2e",
-    "deploy-server": "ng build --configuration production && pscp -r www/ Server_Secure:wuerfelblock",
+    "prepare-deploy": "ng build --configuration production &&  docker build -t wuerfelblock .",
+    "local-deploy": "docker run --rm -d -p 8080:80 --name wuerfelblock-container wuerfelblock",
     "android": "ionic cordova run android",
     "android-build": "ionic cordova build android",
     "android-build-release": "ionic cordova build android --release --configuration production",
-    "android-live": "ionic cordova run android --livereload --consolelogs"
+    "android-live": "ionic cordova run android --livereload --consolelogs",
+    "preversion": "npm run lint-ci",
+    "postversion": "git push && git push --tags"
   },
   "private": true,
   "dependencies": {

@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
 import { SetupCompleteGuard } from './setup/setup-complete.guard';
+import { StartupComponent } from './startup/startup.component';
 
 const routes: Routes = [
   {
@@ -17,8 +18,12 @@ const routes: Routes = [
       import('./setup/setup.module').then((m) => m.SetupPageModule),
   },
   {
+    path: 'startup',
+    component: StartupComponent,
+  },
+  {
     path: '',
-    redirectTo: 'setup',
+    redirectTo: 'startup',
     pathMatch: 'full',
   },
 ];

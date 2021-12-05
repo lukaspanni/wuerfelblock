@@ -11,6 +11,7 @@
         <ion-input
           type="number"
           min="0"
+          debounce="500"
           [value]="player.getPoints(category) | hideZero"
           (ionChange)="player.setPointsUI(category, $event.target)"
           [max]="category.maxPoints"

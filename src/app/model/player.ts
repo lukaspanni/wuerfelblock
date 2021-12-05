@@ -23,9 +23,9 @@ export class Player {
   constructor(public name: string) {}
 
   public getPoints(category: Category): number {
-    if (category.description == null || !this.points.has(category)) {
+    if (!this.points.has(category)) {
       return 0;
-    } //invalid for filler categories
+    }
     return this.points.get(category).value;
   }
 
@@ -37,6 +37,11 @@ export class Player {
   public setPointsUI(category: Category, eventTarget: EventTarget): void {
     const input = eventTarget as unknown as IonInput;
     const points = Number(input.value);
+    if (!category.inputValidation(points)) {
+      console.log('INVALID', points, category);
+      input.value = '';
+      return;
+    }
     // do not validate because otherwise enforcing in ui wont work
     // better solution for later: two step process, one version (with invalid values allowed) for ui and one valid version for "backend"
     this.setPoints(category, points);
@@ -66,7 +71,9 @@ export class Player {
   public subTotal(categories: Category[]): number {
     let sum = 0;
     this.points.forEach((value, key) => {
-      if (categories.includes(key)) {sum += value.value;}
+      if (categories.includes(key)) {
+        sum += value.value;
+      }
     });
     return sum;
   }

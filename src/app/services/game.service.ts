@@ -35,8 +35,7 @@ export class GameService {
   constructor() {}
 }
 
-const getDefaultInputValidation = (base: number): Predicate => {
-  return (input: number): boolean => {
-    return input % base === 0;
-  };
-};
+const getDefaultInputValidation =
+  (base: number): Predicate =>
+  (input: number): boolean =>
+    input % base === 0;

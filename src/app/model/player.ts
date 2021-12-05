@@ -47,21 +47,6 @@ export class Player {
     this.setPoints(category, points);
   }
 
-  public setFixedPointsUI(category: Category, eventTarget: EventTarget): void {
-    if (category.fixedPoints == undefined) {
-      return;
-    } //TODO: maybe throw error
-    if (category.description == null) {
-      return;
-    } // also invalid for filler categories
-    const input = eventTarget as unknown as IonCheckbox;
-    if (!input.checked) {
-      this.points.set(category, new Points(0));
-    } else {
-      this.points.set(category, new Points(category.fixedPoints));
-    }
-  }
-
   public get totalPoints(): number {
     let sum = 0;
     this.points.forEach((value) => (sum += value.value));

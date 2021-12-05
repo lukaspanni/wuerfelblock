@@ -21,7 +21,8 @@
       </ion-item>
       <ion-checkbox
         *ngIf="showCheckbox(category)"
-        (ionChange)="player.setFixedPointsUI(category, $event.target)"
+        indeterminate="true"
+        (click)="checkboxClicked(player, category, $event.target)"
       >
       </ion-checkbox>
     </div>

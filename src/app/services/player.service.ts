@@ -5,7 +5,7 @@ import { Player } from '../model/player';
   providedIn: 'root',
 })
 export class PlayerService {
-  private _players: Player[] = [];
+  private _players: Player[] = [new Player('A'), new Player('B')];
   private _setupComplete = false;
 
   public get players(): Player[] {

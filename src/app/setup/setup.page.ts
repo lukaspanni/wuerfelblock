@@ -48,9 +48,9 @@ export class SetupPage {
       Number.isInteger(index) &&
       this.setupPlayers.length > index &&
       index >= 0
-    ) {
+    )
       this.setupPlayers.splice(index, 1);
-    }
+
   }
 
   public async completePlayerSetup(): Promise<void> {
@@ -71,9 +71,9 @@ export class SetupPage {
       await alert.present();
       const { role } = await alert.onDidDismiss();
       if (role === AlertActionRole.cancel) {
-        if (this.setupPlayers.length === 1) {
+        if (this.setupPlayers.length === 1)
           this.addPlayer();
-        }
+
         return;
       }
     }

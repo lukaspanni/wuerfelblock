@@ -23,9 +23,9 @@ export class PlayerService {
   }
 
   public completeSetup() {
-    if (this.players.length < 1) {
+    if (this.players.length < 1)
       return;
-    }
+
     this._setupComplete = true;
   }
 

@@ -21,7 +21,7 @@ export class GameService {
     new Category('Kleine Straße', 30, 30),
     new Category('Große Straße', 40, 40),
     new Category('Fünferpasch', 50, 50),
-    new Category('Chance', 30, 30),
+    new Category('Chance', 30),
   ];
 
   public get singleNumberCategories(): Category[] {
@@ -35,8 +35,7 @@ export class GameService {
   constructor() {}
 }
 
-const getDefaultInputValidation = (base: number): Predicate => {
-  return (input: number): boolean => {
-    return input % base === 0;
-  };
-};
+const getDefaultInputValidation =
+  (base: number): Predicate =>
+  (input: number): boolean =>
+    input % base === 0;

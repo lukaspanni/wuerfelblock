@@ -36,7 +36,8 @@
           }
         ],
         "no-underscore-dangle": "off",
-        "eqeqeq": ["warn", "smart"]
+        "eqeqeq": ["warn", "smart"],
+        "curly": ["warn", "multi"]
       }
     },
     {

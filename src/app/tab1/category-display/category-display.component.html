@@ -12,16 +12,23 @@
           type="number"
           min="0"
           debounce="500"
-          [value]="player.getPoints(category) | hideZero"
-          (ionChange)="player.setPointsUI(category, $event.target)"
+          [value]="getPoints(player, category) | hideZero"
+          (ionChange)="setPoints(player, category, $event.target)"
           [max]="category.maxPoints"
           [input]="player.getPoints(category)"
         >
         </ion-input>
       </ion-item>
       <ion-checkbox
-        *ngIf="showCheckbox(category)"
-        (ionChange)="player.setFixedPointsUI(category, $event.target)"
+        *ngIf="showCheckbox(category) && !indeterminateState(player, category)"
+        (click)="checkboxClicked(player, category, $event)"
+      >
+      </ion-checkbox>
+      <ion-checkbox
+        color="warning"
+        *ngIf="showCheckbox(category) && indeterminateState(player, category)"
+        indeterminate="true"
+        (click)="checkboxClicked(player, category, $event)"
       >
       </ion-checkbox>
     </div>

@@ -20,9 +20,15 @@
         </ion-input>
       </ion-item>
       <ion-checkbox
-        *ngIf="showCheckbox(category)"
+        *ngIf="showCheckbox(category) && !indeterminateState(player, category)"
+        (click)="checkboxClicked(player, category, $event)"
+      >
+      </ion-checkbox>
+      <ion-checkbox
+        color="warning"
+        *ngIf="showCheckbox(category) && indeterminateState(player, category)"
         indeterminate="true"
-        (click)="checkboxClicked(player, category, $event.target)"
+        (click)="checkboxClicked(player, category, $event)"
       >
       </ion-checkbox>
     </div>

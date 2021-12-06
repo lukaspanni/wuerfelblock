@@ -36,10 +36,10 @@ export class Tab1Page {
   ) {}
 
   public subTotalChange(player: Player): void {
-    if (player.subTotal(this.topCategories) >= this.bonusThreshold) {
+    if (player.subTotal(this.topCategories) >= this.bonusThreshold)
       player.setPoints(this.bonus, this.bonus.fixedPoints);
-    } else {
+     else
       player.setPoints(this.bonus, 0);
-    }
+
   }
 }

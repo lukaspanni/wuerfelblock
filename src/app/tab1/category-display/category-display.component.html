@@ -12,8 +12,8 @@
           type="number"
           min="0"
           debounce="500"
-          [value]="player.getPoints(category) | hideZero"
-          (ionChange)="player.setPointsUI(category, $event.target)"
+          [value]="getPoints(player, category) | hideZero"
+          (ionChange)="setPoints(player, category, $event.target)"
           [max]="category.maxPoints"
           [input]="player.getPoints(category)"
         >

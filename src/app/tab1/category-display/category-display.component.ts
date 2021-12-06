@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { IonCheckbox } from '@ionic/angular';
+import { IonCheckbox, IonInput } from '@ionic/angular';
 import { Category } from 'src/app/model/category';
 import { Player } from 'src/app/model/player';
 
@@ -13,10 +13,25 @@ export class CategoryDisplayComponent {
   @Input() players: Player[];
   @Input() columnWidth: number;
 
-  private categoryIndeterminateState: Map<Player, Map<Category, boolean>> =
-    new Map();
-
   constructor() {}
+
+  public getPoints(player: Player, category: Category): number {
+    return player.getPoints(category);
+  }
+
+  public setPoints(
+    player: Player,
+    category: Category,
+    eventTarget: EventTarget
+  ): void {
+    const input = eventTarget as unknown as IonInput;
+    const points = Number(input.value);
+    if (!category.inputValidation(points)) {
+      input.value = '';
+      return;
+    }
+    player.setPoints(category, points);
+  }
 
   public showInputField(category: Category): boolean {
     return (

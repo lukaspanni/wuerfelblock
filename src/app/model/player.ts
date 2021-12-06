@@ -1,4 +1,3 @@
-import { IonCheckbox, IonInput } from '@ionic/angular';
 import { Category } from './category';
 
 export class Points {
@@ -31,20 +30,6 @@ export class Player {
 
   public setPoints(category: Category, points: number) {
     this.points.set(category, new Points(points));
-  }
-
-  //TODO: Extract UI-Methods from model
-  public setPointsUI(category: Category, eventTarget: EventTarget): void {
-    const input = eventTarget as unknown as IonInput;
-    const points = Number(input.value);
-    if (!category.inputValidation(points)) {
-      console.log('INVALID', points, category);
-      input.value = '';
-      return;
-    }
-    // do not validate because otherwise enforcing in ui wont work
-    // better solution for later: two step process, one version (with invalid values allowed) for ui and one valid version for "backend"
-    this.setPoints(category, points);
   }
 
   public get totalPoints(): number {

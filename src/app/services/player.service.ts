@@ -5,7 +5,7 @@ import { Player } from '../model/player';
   providedIn: 'root',
 })
 export class PlayerService {
-  private _players: Player[] = [new Player('A'), new Player('B')];
+  private _players: Player[] = [];
   private _setupComplete = false;
 
   public get players(): Player[] {
@@ -23,9 +23,9 @@ export class PlayerService {
   }
 
   public completeSetup() {
-    if (this.players.length < 1) {
+    if (this.players.length < 1)
       return;
-    }
+
     this._setupComplete = true;
   }
 

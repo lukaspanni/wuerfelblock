@@ -58,6 +58,7 @@ export class CategoryDisplayComponent implements AfterViewInit {
     const input = eventTarget as unknown as IonInput;
     const points = Number(input.value);
 
+    //TODO: fix
     if (player.getPoints(category) == 0 && points == 0) {
       return;
     } //dont update if points are already 0, prevents deleted fields from marked as skipped

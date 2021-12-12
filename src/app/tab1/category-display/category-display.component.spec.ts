@@ -7,16 +7,21 @@ describe('CategoryDisplayComponent', () => {
   let component: CategoryDisplayComponent;
   let fixture: ComponentFixture<CategoryDisplayComponent>;
 
-  beforeEach(waitForAsync(() => {
-    TestBed.configureTestingModule({
-      declarations: [ CategoryDisplayComponent ],
-      imports: [IonicModule.forRoot()]
-    }).compileComponents();
+  beforeEach(
+    waitForAsync(() => {
+      TestBed.configureTestingModule({
+        declarations: [CategoryDisplayComponent],
+        imports: [IonicModule.forRoot()]
+      }).compileComponents();
 
-    fixture = TestBed.createComponent(CategoryDisplayComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  }));
+      fixture = TestBed.createComponent(CategoryDisplayComponent);
+      component = fixture.componentInstance;
+      component.categories = [];
+      component.players = [];
+      component.columnWidth = 12;
+      fixture.detectChanges();
+    })
+  );
 
   it('should create', () => {
     expect(component).toBeTruthy();

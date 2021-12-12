@@ -36,8 +36,11 @@
           }
         ],
         "no-underscore-dangle": "off",
+        "curly": ["warn", "multi"],
         "eqeqeq": ["warn", "smart"],
-        "curly": ["warn", "multi"]
+        "linebreak-style": "off",
+        "prefer-const": "error",
+        "@typescript-eslint/explicit-function-return-type": "error"
       }
     },
     {

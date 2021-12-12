@@ -8,11 +8,8 @@ export class Points {
   }
 
   constructor(value: number) {
-    if (value > 0)
-      this._value = value;
-     else
-      this._value = 0;
-
+    if (value > 0) this._value = value;
+    else this._value = 0;
   }
 }
 
@@ -22,13 +19,12 @@ export class Player {
   constructor(public name: string) {}
 
   public getPoints(category: Category): number {
-    if (!this.points.has(category))
-      return 0;
+    if (!this.points.has(category)) return 0;
 
     return this.points.get(category).value;
   }
 
-  public setPoints(category: Category, points: number) {
+  public setPoints(category: Category, points: number): void {
     this.points.set(category, new Points(points));
   }
 
@@ -41,9 +37,7 @@ export class Player {
   public subTotal(categories: Category[]): number {
     let sum = 0;
     this.points.forEach((value, key) => {
-      if (categories.includes(key))
-        sum += value.value;
-
+      if (categories.includes(key)) sum += value.value;
     });
     return sum;
   }

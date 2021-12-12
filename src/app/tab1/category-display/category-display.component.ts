@@ -6,13 +6,13 @@ import { Player } from 'src/app/model/player';
 enum CheckBoxState {
   unchecked = 0,
   checked = 1,
-  indeterminate = 2,
+  indeterminate = 2
 }
 
 @Component({
   selector: 'wb-category-display',
   templateUrl: './category-display.component.html',
-  styleUrls: ['./category-display.component.scss'],
+  styleUrls: ['./category-display.component.scss']
 })
 export class CategoryDisplayComponent implements AfterViewInit {
   @Input() categories: Category[];
@@ -26,22 +26,13 @@ export class CategoryDisplayComponent implements AfterViewInit {
   constructor() {}
 
   public ngAfterViewInit(): void {
-    const fixedPointCategories = this.categories.filter(
-      (category) => category.fixedPoints !== undefined
-    );
-    if (fixedPointCategories.length < 1) {
-      return;
-    }
+    const fixedPointCategories = this.categories.filter((category) => category.fixedPoints !== undefined);
+    if (fixedPointCategories.length < 1) return;
 
     this.players.forEach((player) => {
       this.checkBoxStateMap.set(
         player.name,
-        new Map(
-          fixedPointCategories.map((category) => [
-            category.description,
-            CheckBoxState.unchecked,
-          ])
-        )
+        new Map(fixedPointCategories.map((category) => [category.description, CheckBoxState.unchecked]))
       );
     });
   }
@@ -50,28 +41,18 @@ export class CategoryDisplayComponent implements AfterViewInit {
     return player.getPoints(category);
   }
 
-  public setPoints(
-    player: Player,
-    category: Category,
-    eventTarget: EventTarget
-  ): void {
+  public setPoints(player: Player, category: Category, eventTarget: EventTarget): void {
     const input = eventTarget as unknown as IonInput;
     const points = Number(input.value);
 
     //TODO: fix
-    if (player.getPoints(category) == 0 && points == 0) {
-      return;
-    } //dont update if points are already 0, prevents deleted fields from marked as skipped
+    if (player.getPoints(category) == 0 && points == 0) return;
+    //dont update if points are already 0, prevents deleted fields from marked as skipped
 
-    const parentCol = (eventTarget as unknown as HTMLElement).closest(
-      'ion-col'
-    );
+    const parentCol = (eventTarget as unknown as HTMLElement).closest('ion-col');
 
-    if (points === 0 && input.value != '') {
-      parentCol?.classList.add(this.categorySkipClassname);
-    } else {
-      parentCol?.classList.remove(this.categorySkipClassname);
-    }
+    if (points === 0 && input.value != '') parentCol?.classList.add(this.categorySkipClassname);
+    else parentCol?.classList.remove(this.categorySkipClassname);
 
     if (!category.inputValidation(points)) {
       input.value = '';
@@ -85,19 +66,15 @@ export class CategoryDisplayComponent implements AfterViewInit {
   }
 
   public showInputField(category: Category): boolean {
-    return (
-      category.maxPoints !== undefined && category.fixedPoints === undefined
-    );
+    return category.maxPoints !== undefined && category.fixedPoints === undefined;
   }
 
   public showCheckbox(category: Category): boolean {
     return category.fixedPoints !== undefined;
   }
 
-  public checkboxClicked(player: Player, category: Category, event: Event) {
-    if (category.fixedPoints == undefined) {
-      return;
-    }
+  public checkboxClicked(player: Player, category: Category, event: Event): void {
+    if (category.fixedPoints == undefined) return;
 
     const state = this.checkboxState(player, category);
 
@@ -107,11 +84,8 @@ export class CategoryDisplayComponent implements AfterViewInit {
       this.setCheckboxState(player, category, CheckBoxState.checked);
     } else {
       player.setPoints(category, 0);
-      if (state === CheckBoxState.checked) {
-        this.setCheckboxState(player, category, CheckBoxState.indeterminate);
-      } else {
-        this.setCheckboxState(player, category, CheckBoxState.unchecked);
-      }
+      if (state === CheckBoxState.checked) this.setCheckboxState(player, category, CheckBoxState.indeterminate);
+      else this.setCheckboxState(player, category, CheckBoxState.unchecked);
     }
   }
 
@@ -125,11 +99,7 @@ export class CategoryDisplayComponent implements AfterViewInit {
     return state ?? CheckBoxState.unchecked;
   }
 
-  private setCheckboxState(
-    player: Player,
-    category: Category,
-    state: CheckBoxState
-  ): void {
+  private setCheckboxState(player: Player, category: Category, state: CheckBoxState): void {
     const categoryStates = this.checkBoxStateMap.get(player.name);
     categoryStates?.set(category.description, state);
   }

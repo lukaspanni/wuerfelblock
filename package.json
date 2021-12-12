@@ -7,6 +7,7 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
+    "test": "ng test",
     "test-ci": "ng test --karma-config ./karma-ci.conf.js",
     "lint": "ng lint --fix",
     "lint-ci": "ng lint",

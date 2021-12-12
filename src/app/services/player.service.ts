@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Player } from '../model/player';
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 export class PlayerService {
   private _players: Player[] = [];
@@ -18,18 +18,17 @@ export class PlayerService {
 
   constructor() {}
 
-  public addPlayers(...players: Player[]) {
+  public addPlayers(...players: Player[]): void {
     this._players.push(...players);
   }
 
-  public completeSetup() {
-    if (this.players.length < 1)
-      return;
+  public completeSetup(): void {
+    if (this.players.length < 1) return;
 
     this._setupComplete = true;
   }
 
-  public reset() {
+  public reset(): void {
     this._players = [];
     this._setupComplete = false;
   }

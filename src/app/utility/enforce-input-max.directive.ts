@@ -4,7 +4,7 @@ import { Directive, ElementRef, Input, OnChanges } from '@angular/core';
  * Enforce number input to be between 0 and max
  */
 @Directive({
-  selector: '[max]',
+  selector: '[max]'
 })
 export class EnforceInputMaxDirective implements OnChanges {
   @Input() public max: number;
@@ -12,7 +12,7 @@ export class EnforceInputMaxDirective implements OnChanges {
 
   constructor(private element: ElementRef) {}
 
-  public ngOnChanges() {
+  public ngOnChanges(): void {
     if (Number(this.input) > Number(this.max)) {
       //just force the element to adhere to maximum value
       this.element.nativeElement.value = this.max;

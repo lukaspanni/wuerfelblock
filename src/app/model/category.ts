@@ -5,7 +5,7 @@ export class Category {
     public description: string,
     public maxPoints: number,
     public fixedPoints?: number,
-    public inputValidation: Predicate = (): boolean => true
+    public inputValidation: Predicate = (input: number): boolean => Number(input) <= maxPoints
   ) {}
 
   public equals(other: Category): boolean {

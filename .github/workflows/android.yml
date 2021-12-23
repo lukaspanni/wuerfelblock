@@ -27,6 +27,8 @@ jobs:
       run: |
         SDKMANAGER=$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager
         echo y | $SDKMANAGER --uninstall "build-tools;31.0.0"
+        echo y | $SDKMANAGER --uninstall "build-tools;32.0.0"
+
 
     - name: Install global packages
       run: npm install -g cordova @angular/cli @ionic/cli

@@ -80,7 +80,6 @@
               "browserTarget": "app:build:production"
             },
             "ci": {
-              "progress": false
             }
           }
         },
@@ -99,6 +98,7 @@
             "karmaConfig": "karma.conf.js",
             "styles": [],
             "scripts": [],
+            "codeCoverage": true,
             "assets": [
               {
                 "glob": "favicon.ico",
@@ -122,10 +122,7 @@
         "lint": {
           "builder": "@angular-eslint/builder:lint",
           "options": {
-            "lintFilePatterns": [
-              "src/**/*.ts",
-              "src/**/*.html"
-            ]
+            "lintFilePatterns": ["src/**/*.ts", "src/**/*.html"]
           }
         },
         "e2e": {

@@ -32,6 +32,6 @@ describe('StartupComponent', () => {
 
   it('startSetup should redirect to player-setup', () => {
     component.startSetup();
-    expect(routerSpy.navigateByUrl).toHaveBeenCalledWith(['/setup/player']);
+    expect(routerSpy.navigateByUrl).toHaveBeenCalledWith('/setup/player');
   });
 });

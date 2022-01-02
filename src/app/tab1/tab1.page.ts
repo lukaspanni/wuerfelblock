@@ -33,9 +33,8 @@ export class Tab1Page {
   constructor(private playerService: PlayerService, private gameService: GameService) {}
 
   public currentPlacement(player: Player): number {
-    const uniquePoints = new Set(this.playerService.players.map((p) => p.totalPoints));
-    const pointsSorted = Array.from(uniquePoints).sort().reverse();
-    return pointsSorted.indexOf(player.totalPoints) + 1;
+    const sortedPoints = new Set(this.playerService.players.map((p) => Number(p.totalPoints)).sort((a, b) => b - a));
+    return Array.from(sortedPoints).indexOf(player.totalPoints) + 1;
   }
 
   public subTotalChange(player: Player): void {

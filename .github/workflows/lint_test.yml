@@ -2,9 +2,9 @@ name: NodeJS Lint and Test
 
 on:
   push:
-    branches: [main, ci/*]
+    branches: [main, feature/*]
   pull_request:
-    branches: [main, ci/*]
+    branches: [main]
   workflow_dispatch:
 
 jobs:

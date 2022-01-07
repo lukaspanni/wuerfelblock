@@ -19,7 +19,7 @@ export class CategoryDisplayComponent implements AfterViewInit {
   @Input() players: Player[];
   @Input() columnWidth: number;
 
-  public checkBoxStateMap: Map<string, Map<string, CheckBoxState>> = new Map();
+  public checkBoxStateMap: Map<Player, Map<string, CheckBoxState>> = new Map();
 
   private readonly categorySkipClassname = 'category-skip';
 
@@ -31,7 +31,7 @@ export class CategoryDisplayComponent implements AfterViewInit {
 
     this.players.forEach((player) => {
       this.checkBoxStateMap.set(
-        player.name,
+        player,
         new Map(fixedPointCategories.map((category) => [category.description, CheckBoxState.unchecked]))
       );
     });
@@ -85,13 +85,13 @@ export class CategoryDisplayComponent implements AfterViewInit {
   }
 
   private checkboxState(player: Player, category: Category): CheckBoxState {
-    const categoryStates = this.checkBoxStateMap.get(player.name);
+    const categoryStates = this.checkBoxStateMap.get(player);
     const state = categoryStates?.get(category.description);
     return state ?? CheckBoxState.unchecked;
   }
 
   private setCheckboxState(player: Player, category: Category, state: CheckBoxState): void {
-    const categoryStates = this.checkBoxStateMap.get(player.name);
+    const categoryStates = this.checkBoxStateMap.get(player);
     categoryStates?.set(category.description, state);
   }
 }

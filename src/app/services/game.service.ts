@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Category, Predicate } from '../model/category';
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 export class GameService {
   private _singleNumberCategories: Category[] = [
@@ -11,17 +11,17 @@ export class GameService {
     new Category('Dreier', 15, undefined, getDefaultInputValidation(3)),
     new Category('Vierer', 20, undefined, getDefaultInputValidation(4)),
     new Category('Fünfer', 25, undefined, getDefaultInputValidation(5)),
-    new Category('Sechser', 30, undefined, getDefaultInputValidation(6)),
+    new Category('Sechser', 30, undefined, getDefaultInputValidation(6))
   ];
 
   private _complexCategories: Category[] = [
-    new Category('Dreierpasch', 30),
-    new Category('Viererpasch', 30),
+    new Category('Dreierpasch', 30, undefined, (input: number): boolean => input >= 5),
+    new Category('Viererpasch', 30, undefined, (input: number): boolean => input >= 5),
     new Category('Full House', 25, 25),
     new Category('Kleine Straße', 30, 30),
     new Category('Große Straße', 40, 40),
     new Category('Fünferpasch', 50, 50),
-    new Category('Chance', 30),
+    new Category('Chance', 30, undefined, (input: number): boolean => input >= 5)
   ];
 
   public get singleNumberCategories(): Category[] {

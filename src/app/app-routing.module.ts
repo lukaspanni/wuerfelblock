@@ -21,7 +21,7 @@ const routes: Routes = [
     component: StartupComponent
   },
   {
-    path: '',
+    path: '**',
     redirectTo: 'startup',
     pathMatch: 'full'
   }

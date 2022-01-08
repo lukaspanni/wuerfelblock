@@ -7,11 +7,15 @@ const routes: Routes = [
   {
     path: '',
     component: SetupPage
+  },
+  {
+    path: '**',
+    redirectTo: ''
   }
 ];
 
 @NgModule({
   imports: [RouterModule.forChild(routes)],
-  exports: [RouterModule],
+  exports: [RouterModule]
 })
 export class SetupPageRoutingModule {}

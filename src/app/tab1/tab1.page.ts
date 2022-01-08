@@ -1,11 +1,9 @@
 import { Component, HostListener, ViewEncapsulation } from '@angular/core';
-import { NavigationEnd, Router } from '@angular/router';
 import { Category } from '../model/category';
 import { Player } from '../model/player';
 import { GameService } from '../services/game.service';
 import { PlayerService } from '../services/player.service';
 import { CanLeaveGame } from './keep-game-active.guard';
-import { filter } from 'rxjs/operators';
 @Component({
   selector: 'app-tab1',
   templateUrl: 'tab1.page.html',
@@ -35,7 +33,7 @@ export class Tab1Page implements CanLeaveGame {
   constructor(private playerService: PlayerService, private gameService: GameService) {}
 
   @HostListener('window:beforeunload', ['$event'])
-  public beforeUnload() {
+  public beforeUnload(): boolean {
     return this.canLeave();
   }
 

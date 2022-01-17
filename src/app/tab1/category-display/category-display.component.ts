@@ -21,8 +21,6 @@ export class CategoryDisplayComponent implements AfterViewInit {
 
   public checkBoxStateMap: Map<Player, Map<string, CheckBoxState>> = new Map();
 
-  private readonly categorySkipClassname = 'category-skip';
-
   constructor() {}
 
   public ngAfterViewInit(): void {

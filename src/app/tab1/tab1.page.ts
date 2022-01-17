@@ -11,9 +11,6 @@ import { CanLeaveGame } from './keep-game-active.guard';
   encapsulation: ViewEncapsulation.None
 })
 export class Tab1Page implements CanLeaveGame {
-  public bonus = new Category('Bonus', 35, 35);
-  private bonusThreshold = 63;
-
   public get players(): Player[] {
     return this.playerService.players;
   }
@@ -47,8 +44,8 @@ export class Tab1Page implements CanLeaveGame {
   }
 
   public subTotalChange(player: Player): void {
-    if (player.subTotal(this.topCategories) >= this.bonusThreshold)
-      player.setPoints(this.bonus, this.bonus.fixedPoints);
-    else player.setPoints(this.bonus, 0);
+    if (player.subTotal(this.topCategories) >= this.gameService.bonusThreshold)
+      player.setPoints(this.gameService.bonusCategory, this.gameService.bonusCategory.fixedPoints);
+    else player.setPoints(this.gameService.bonusCategory, 0);
   }
 }

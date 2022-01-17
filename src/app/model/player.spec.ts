@@ -47,7 +47,7 @@ describe('Player', () => {
 
   it('setPoints should throw error if category validation fails', () => {
     const categoryDefaultValidation = new Category('test', 10); // uses default validation
-    const categoryCustomValidation = new Category('test2', 10, undefined, (input: number) => false);
+    const categoryCustomValidation = new Category('test2', 10, undefined, undefined, (input: number) => false);
     expect(() => player.setPoints(categoryDefaultValidation, 10)).not.toThrowError();
     expect(() => player.setPoints(categoryDefaultValidation, 11)).toThrowError();
     expect(() => player.setPoints(categoryCustomValidation, 0)).toThrowError();

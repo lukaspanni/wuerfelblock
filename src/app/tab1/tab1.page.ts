@@ -27,6 +27,10 @@ export class Tab1Page implements CanLeaveGame {
     return 12 / (this.players.length + 1);
   }
 
+  public get bonusCategory(): Category {
+    return this.gameService.bonusCategory;
+  }
+
   constructor(private playerService: PlayerService, private gameService: GameService) {}
 
   @HostListener('window:beforeunload', ['$event'])

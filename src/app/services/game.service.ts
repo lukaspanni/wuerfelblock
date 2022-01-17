@@ -5,26 +5,26 @@ import { Category, Predicate } from '../model/category';
   providedIn: 'root'
 })
 export class GameService {
-  private _bonusCategory = new Category('Bonus', 35, undefined, 35);
+  private _bonusCategory = new Category('Bonus', 35, '35 Punkte bei 63 oder mehr', 35);
   private _bonusThreshold = 63;
 
   private _singleNumberCategories: Category[] = [
-    new Category('Einser', 5, undefined, undefined, getDefaultInputValidation(1)),
-    new Category('Zweier', 10, undefined, undefined, getDefaultInputValidation(2)),
-    new Category('Dreier', 15, undefined, undefined, getDefaultInputValidation(3)),
-    new Category('Vierer', 20, undefined, undefined, getDefaultInputValidation(4)),
-    new Category('Fünfer', 25, undefined, undefined, getDefaultInputValidation(5)),
-    new Category('Sechser', 30, undefined, undefined, getDefaultInputValidation(6))
+    new Category('Einser', 5, 'alle Einser', undefined, getDefaultInputValidation(1)),
+    new Category('Zweier', 10, 'alle Zweier', undefined, getDefaultInputValidation(2)),
+    new Category('Dreier', 15, 'alle Dreier', undefined, getDefaultInputValidation(3)),
+    new Category('Vierer', 20, 'alle Vierer', undefined, getDefaultInputValidation(4)),
+    new Category('Fünfer', 25, 'alle Fünfer', undefined, getDefaultInputValidation(5)),
+    new Category('Sechser', 30, 'alle Sechser', undefined, getDefaultInputValidation(6))
   ];
 
   private _complexCategories: Category[] = [
-    new Category('Dreierpasch', 30, undefined, undefined, (input: number): boolean => input >= 5),
-    new Category('Viererpasch', 30, undefined, undefined, (input: number): boolean => input >= 5),
-    new Category('Full House', 25, undefined, 25),
-    new Category('Kleine Straße', 30, undefined, 30),
-    new Category('Große Straße', 40, undefined, 40),
-    new Category('Fünferpasch', 50, undefined, 50),
-    new Category('Chance', 30, undefined, undefined, (input: number): boolean => input >= 5)
+    new Category('Dreierpasch', 30, 'alles zählt', undefined, (input: number): boolean => input >= 5),
+    new Category('Viererpasch', 30, 'alles zählt', undefined, (input: number): boolean => input >= 5),
+    new Category('Full House', 25, '25 Punkte', 25),
+    new Category('Kleine Straße', 30, '30 Punkte', 30),
+    new Category('Große Straße', 40, '40 Punkte', 40),
+    new Category('Fünferpasch', 50, '50 Punkte', 50),
+    new Category('Chance', 30, 'alles zählt', undefined, (input: number): boolean => input >= 5)
   ];
 
   public get singleNumberCategories(): Category[] {

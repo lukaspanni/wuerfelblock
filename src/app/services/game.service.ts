@@ -5,6 +5,9 @@ import { Category, Predicate } from '../model/category';
   providedIn: 'root'
 })
 export class GameService {
+  private _bonusCategory = new Category('Bonus', 35, undefined, 35);
+  private _bonusThreshold = 63;
+
   private _singleNumberCategories: Category[] = [
     new Category('Einser', 5, undefined, undefined, getDefaultInputValidation(1)),
     new Category('Zweier', 10, undefined, undefined, getDefaultInputValidation(2)),
@@ -30,6 +33,14 @@ export class GameService {
 
   public get complexCategories(): Category[] {
     return this._complexCategories;
+  }
+
+  public get bonusCategory(): Category {
+    return this._bonusCategory;
+  }
+
+  public get bonusThreshold(): number {
+    return this._bonusThreshold;
   }
 
   constructor() {}

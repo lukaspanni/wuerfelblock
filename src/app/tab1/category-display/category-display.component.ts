@@ -32,7 +32,7 @@ export class CategoryDisplayComponent implements AfterViewInit {
     this.players.forEach((player) => {
       this.checkBoxStateMap.set(
         player,
-        new Map(fixedPointCategories.map((category) => [category.description, CheckBoxState.unchecked]))
+        new Map(fixedPointCategories.map((category) => [category.name, CheckBoxState.unchecked]))
       );
     });
   }
@@ -86,12 +86,12 @@ export class CategoryDisplayComponent implements AfterViewInit {
 
   private checkboxState(player: Player, category: Category): CheckBoxState {
     const categoryStates = this.checkBoxStateMap.get(player);
-    const state = categoryStates?.get(category.description);
+    const state = categoryStates?.get(category.name);
     return state ?? CheckBoxState.unchecked;
   }
 
   private setCheckboxState(player: Player, category: Category, state: CheckBoxState): void {
     const categoryStates = this.checkBoxStateMap.get(player);
-    categoryStates?.set(category.description, state);
+    categoryStates?.set(category.name, state);
   }
 }

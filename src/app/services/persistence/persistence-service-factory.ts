@@ -3,10 +3,12 @@ import { BrowserPersistenceService } from './browser-persistence.service';
 import { MobilePersistenceService } from './mobile-persistence.service';
 import { PersistenceService } from './persistence.service';
 
-let persistenceService = undefined;
+let persistenceService;
 
 export const persistenceServiceFactory = (platform: Platform): PersistenceService => {
-  if (persistenceService !== undefined) return persistenceService;
-  if (platform.is('cordova') && platform.is('mobile')) return new MobilePersistenceService();
-  return new BrowserPersistenceService();
+  if (persistenceService === undefined)
+    if (platform.is('cordova') && platform.is('mobile')) persistenceService = new MobilePersistenceService();
+    else persistenceService = new BrowserPersistenceService();
+
+  return persistenceService;
 };

@@ -14,12 +14,12 @@ export class BrowserPersistenceService extends PersistenceService {
   public async store(key: string, data: string): Promise<void> {
     const cookieData = this.getCookieData();
     const index = this.findKey(cookieData, key);
-    if (index === -1) {
+    if (index === -1)
       //push new data
       cookieData.data.push({ [key]: data });
-    } else {
+     else
       cookieData.data[index][key] = data;
-    }
+
     const serialized = btoa(JSON.stringify(cookieData));
     document.cookie = 'data=' + serialized;
   }
@@ -43,9 +43,9 @@ export class BrowserPersistenceService extends PersistenceService {
     if (matches !== null && matches.length > 0) {
       const dataString = atob(matches[1]);
       return JSON.parse(dataString);
-    } else {
+    } else
       return { data: [] };
-    }
+
   }
 
   private findKey(cookieData: { data: any[] }, key: string): number {

@@ -6,7 +6,7 @@ import { IonicModule, IonicRouteStrategy, Platform } from '@ionic/angular';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { persistenceServiceFactory } from './services/persistence/persistenc-service-factory';
+import { persistenceServiceFactory } from './services/persistence/persistence-service-factory';
 import { PersistenceService } from './services/persistence/persistence.service';
 import { StartupComponent } from './startup/startup.component';
 

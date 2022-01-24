@@ -35,26 +35,26 @@ describe('PlayerService', () => {
     expect(players).toEqual(expectedPlayers);
   });
 
-  it('completeSetup should not complete without players', () => {
+  it('completeSetup should not complete without players', async () => {
     expect(service.players.length).toBe(0);
     expect(service.setupComplete).toBeFalse();
 
-    service.completeSetup();
+    await service.completeSetup();
     expect(service.setupComplete).toBeFalse();
   });
 
-  it('completeSetup should complete with players set', () => {
+  it('completeSetup should complete with players set', async () => {
     expect(service.players.length).toBe(0);
     expect(service.setupComplete).toBeFalse();
     service.addPlayers(new Player('TEST'));
 
-    service.completeSetup();
+    await service.completeSetup();
     expect(service.setupComplete).toBeTrue();
   });
 
-  it('reset should reset properties', () => {
+  it('reset should reset properties', async () => {
     service.addPlayers(new Player('TEST'));
-    service.completeSetup();
+    await service.completeSetup();
     expect(service.players.length).toBe(1);
     expect(service.setupComplete).toBeTrue();
 

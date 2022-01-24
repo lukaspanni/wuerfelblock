@@ -22,9 +22,8 @@ export class PlayerService {
     this._players.push(...players);
   }
 
-  public completeSetup(): void {
+  public async completeSetup(): Promise<void> {
     if (this.players.length < 1) return;
-
     this._setupComplete = true;
   }
 

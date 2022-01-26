@@ -5,6 +5,7 @@ import { PersistenceService } from './persistence.service';
   providedIn: 'root'
 })
 export class BrowserPersistenceService extends PersistenceService {
+  //TODO: consider localstorage and indexedDB
   private readonly dataRegex = 'data=([0-9a-zA-Z+/=]+)';
 
   constructor() {
@@ -17,8 +18,7 @@ export class BrowserPersistenceService extends PersistenceService {
     if (index === -1)
       //push new data
       cookieData.data.push({ [key]: data });
-     else
-      cookieData.data[index][key] = data;
+    else cookieData.data[index][key] = data;
 
     const serialized = btoa(JSON.stringify(cookieData));
     document.cookie = 'data=' + serialized;
@@ -43,9 +43,7 @@ export class BrowserPersistenceService extends PersistenceService {
     if (matches !== null && matches.length > 0) {
       const dataString = atob(matches[1]);
       return JSON.parse(dataString);
-    } else
-      return { data: [] };
-
+    } else return { data: [] };
   }
 
   private findKey(cookieData: { data: any[] }, key: string): number {

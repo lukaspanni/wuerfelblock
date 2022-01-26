@@ -42,7 +42,7 @@ export class SetupPage {
 
   public async loadPlayers(): Promise<void> {
     const storedPlayers = await this.persistenceService.retrieve(this.lastSetupPlayerStorageKey);
-    if (storedPlayers === '') return;
+    if (storedPlayers == undefined || storedPlayers === '') return;
     const players = JSON.parse(storedPlayers);
     if (players.length > 0) {
       this.setupPlayers = [];

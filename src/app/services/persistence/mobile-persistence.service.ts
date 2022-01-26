@@ -1,21 +1,34 @@
 import { Injectable } from '@angular/core';
 import { PersistenceService } from './persistence.service';
-
+import { Storage } from '@ionic/storage-angular';
 @Injectable({
   providedIn: 'root'
 })
 export class MobilePersistenceService extends PersistenceService {
-  constructor() {
+  public ready: Promise<boolean>;
+
+  private storage: Storage | undefined;
+
+  constructor(storage: Storage) {
     super();
+    let resolveFunction;
+    this.ready = new Promise((resolve) => (resolveFunction = resolve));
+    storage.create().then((value) => {
+      this.storage = value;
+      resolveFunction(true);
+    });
   }
 
-  public store(key: string, data: string): Promise<void> {
-    throw new Error('Method not implemented.');
+  public async store(key: string, data: string): Promise<void> {
+    await this.ready;
+    await this.storage.set(key, data);
   }
-  public retrieve(key: string): Promise<string> {
-    throw new Error('Method not implemented.');
+  public async retrieve(key: string): Promise<string> {
+    await this.ready;
+    return this.storage.get(key);
   }
-  public clear(): Promise<void> {
-    throw new Error('Method not implemented.');
+  public async clear(): Promise<void> {
+    await this.ready;
+    await this.storage.clear();
   }
 }

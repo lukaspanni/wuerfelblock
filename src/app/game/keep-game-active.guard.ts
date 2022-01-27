@@ -16,7 +16,7 @@ export class KeepGameActiveGuard implements CanDeactivate<CanLeaveGame> {
     currentState: RouterStateSnapshot,
     nextState?: RouterStateSnapshot
   ): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
-    if (component == undefined) return true;
-    if (!component.canLeave()) return confirm('Seite wirklich verlassen?');
+    if (component == undefined || component.canLeave()) return true;
+    return confirm('Seite wirklich verlassen?');
   }
 }

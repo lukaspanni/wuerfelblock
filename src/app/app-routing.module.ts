@@ -1,15 +1,14 @@
 import { NgModule } from '@angular/core';
 import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
+import { GameModule } from './game/game.module';
 import { SetupCompleteGuard } from './setup/setup-complete.guard';
 import { SetupPageModule } from './setup/setup.module';
 import { StartupComponent } from './startup/startup.component';
-import { TabContainerPageModule } from './tab-container/tab-container.module';
 
 const routes: Routes = [
   {
-    path: 'games',
-    loadChildren: (): Promise<TabContainerPageModule | void> =>
-      import('./tab-container/tab-container.module').then((m) => m.TabContainerPageModule),
+    path: 'game',
+    loadChildren: (): Promise<GameModule | void> => import('./game/game.module').then((m) => m.GameModule),
     canActivate: [SetupCompleteGuard]
   },
   {

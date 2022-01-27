@@ -4,6 +4,10 @@ ion-card-title.action-button {
   font-weight: bold;
 }
 
+ion-card#start-game ion-card-title {
+  font-size: 2.5em;
+}
+
 ion-card#imprint {
   position: fixed;
   display: block;

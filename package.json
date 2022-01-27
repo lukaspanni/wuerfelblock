@@ -20,7 +20,7 @@
     "android-build-release": "ionic cordova build android --release --configuration production",
     "android-live": "ionic cordova run android --livereload --consolelogs",
     "preversion": "npm run lint-ci",
-    "version": "cross-var npx cordova-update-config --appversion $npm_package_version",
+    "version": "cross-var npx cordova-update-config --appversion $npm_package_version && git add config.xml",
     "postversion": "git push && git push --tags"
   },
   "private": true,

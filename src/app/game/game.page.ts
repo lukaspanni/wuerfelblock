@@ -5,12 +5,11 @@ import { GameService } from '../services/game.service';
 import { PlayerService } from '../services/player.service';
 import { CanLeaveGame } from './keep-game-active.guard';
 @Component({
-  selector: 'app-tab1',
-  templateUrl: 'tab1.page.html',
-  styleUrls: ['tab1.page.scss'],
+  templateUrl: 'game.page.html',
+  styleUrls: ['game.page.scss'],
   encapsulation: ViewEncapsulation.None
 })
-export class Tab1Page implements CanLeaveGame {
+export class GamePage implements CanLeaveGame {
   public get players(): Player[] {
     return this.playerService.players;
   }

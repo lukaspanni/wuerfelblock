@@ -1,12 +1,12 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { KeepGameActiveGuard } from './keep-game-active.guard';
-import { Tab1Page } from './tab1.page';
+import { GamePage } from './game.page';
 
 const routes: Routes = [
   {
     path: '',
-    component: Tab1Page,
+    component: GamePage,
     canDeactivate: [KeepGameActiveGuard]
   }
 ];
@@ -15,4 +15,4 @@ const routes: Routes = [
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule]
 })
-export class Tab1PageRoutingModule {}
+export class GameRoutingModule {}

@@ -36,7 +36,6 @@ export class SetupPage {
     private alertController: AlertController,
     private router: Router
   ) {
-    this.playerService.reset(); // make sure to start a new game
     this.loadPlayers();
   }
 
@@ -81,11 +80,12 @@ export class SetupPage {
         return;
       }
     }
+    this.playerService.reset(); // make sure to start a new game
     this.playerService.addPlayers(
       ...this.setupPlayers.filter((player) => player.name !== '').map((player) => new Player(player.name))
     );
     await this.persistenceService.store(this.lastSetupPlayerStorageKey, JSON.stringify(Array.from(this.players)));
     await this.playerService.completeSetup();
-    this.router.navigateByUrl('games/tab1');
+    this.router.navigateByUrl('game');
   }
 }

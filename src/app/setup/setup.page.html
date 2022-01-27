@@ -1,19 +1,26 @@
 <ion-header>
   <ion-toolbar>
     <ion-title>Setup</ion-title>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/startup"></ion-back-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 <ion-content>
   <form (ngSubmit)="completePlayerSetup()" #userSetupForm="ngForm" class="ion-padding-end">
     <ion-item-group *ngFor="let player of setupPlayers; let i = index">
       <ion-item>
-        <ion-label position="floating">
-          Name <ion-text color="danger">*</ion-text>
-        </ion-label>
+        <ion-label position="floating"> Name <ion-text color="danger">*</ion-text> </ion-label>
         <ion-input type="text" name="name{{i}}" [(ngModel)]="player.name" minLength="1" autocapitalize="true">
         </ion-input>
-        <ion-button slot="end" *ngIf="setupPlayers.length > 1" (click)="removePlayer(i)" shape="round" fill="clear"
-          color="medium">
+        <ion-button
+          slot="end"
+          *ngIf="setupPlayers.length > 1"
+          (click)="removePlayer(i)"
+          shape="round"
+          fill="clear"
+          color="medium"
+        >
           <ion-icon slot="icon-only" name="close"></ion-icon>
         </ion-button>
       </ion-item>
@@ -26,8 +33,13 @@
           </ion-button>
         </ion-col>
         <ion-col size="6">
-          <ion-button color="primary" type="submit" [disabled]="userSetupForm.invalid || !playerValid" expand="block"
-            color="success">
+          <ion-button
+            color="primary"
+            type="submit"
+            [disabled]="userSetupForm.invalid || !playerValid"
+            expand="block"
+            color="success"
+          >
             <ion-icon slot="icon-only" name="send"></ion-icon>
           </ion-button>
         </ion-col>

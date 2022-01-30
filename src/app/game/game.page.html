@@ -56,4 +56,9 @@
       </ion-col>
     </ion-row>
   </ion-grid>
+
+  <ion-button (click)="saveResults()" expand="block" color="success" [hidden]="!gameFinished">
+    <ion-icon slot="end" name="save-outline"></ion-icon>
+    Ergebnisse speichern
+  </ion-button>
 </ion-content>

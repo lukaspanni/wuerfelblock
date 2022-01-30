@@ -31,4 +31,11 @@ export class PlayerService {
     this._players = [];
     this._setupComplete = false;
   }
+
+  public export(): string {
+    //TODO: - allow export with placement
+    //TODO: - allow export in other formats than json
+    const exportData = this.players.map((p) => ({ player: p.name, points: p.totalPoints }));
+    return JSON.stringify(exportData);
+  }
 }

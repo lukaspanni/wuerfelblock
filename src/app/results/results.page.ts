@@ -26,7 +26,9 @@ export class ResultsPage implements OnInit {
   }
 
   public async loadStoredResults(): Promise<void> {
-    const resultPromises = (await this.persistenceService.keys())
+    const keys = await this.persistenceService.keys();
+    if (keys == undefined) return;
+    const resultPromises = keys
       .filter((key) => key.startsWith(resultsStorageKey))
       .map((key) => this.persistenceService.retrieve(key));
     const results = await Promise.all(resultPromises);

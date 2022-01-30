@@ -5,6 +5,8 @@ import { Category, Predicate } from '../model/category';
   providedIn: 'root'
 })
 export class GameService {
+  //TODO: Rename to CategoryService or combine with PlayerService to new GameService?
+
   private _bonusCategory = new Category('Bonus', 35, '35 Punkte bei 63 oder mehr', 35);
   private _bonusThreshold = 63;
 
@@ -41,6 +43,10 @@ export class GameService {
 
   public get bonusThreshold(): number {
     return this._bonusThreshold;
+  }
+
+  public get categoryCount(): number {
+    return this._complexCategories.length + this._singleNumberCategories.length + 1;
   }
 
   constructor() {}

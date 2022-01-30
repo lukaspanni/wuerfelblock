@@ -12,9 +12,14 @@ export class Player {
     return this.points.get(category).value;
   }
 
+  public get finishedCategoriesCount(): number {
+    return this.points.size;
+  }
+
   public setPoints(category: Category, points: number): void {
     if (!category.inputValidation(points)) throw new RangeError('Supplied points value is invalid for this category');
     this.points.set(category, new Points(points));
+    console.log(this.points);
   }
 
   public get totalPoints(): number {

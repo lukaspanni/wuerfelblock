@@ -1,7 +1,9 @@
 import { Component, HostListener, ViewEncapsulation } from '@angular/core';
+import { Platform } from '@ionic/angular';
 import { Category } from '../model/category';
 import { Player } from '../model/player';
 import { GameService } from '../services/game.service';
+import { PersistenceService } from '../services/persistence/persistence.service';
 import { PlayerService } from '../services/player.service';
 import { CanLeaveGame } from './keep-game-active.guard';
 @Component({
@@ -30,7 +32,18 @@ export class GamePage implements CanLeaveGame {
     return this.gameService.bonusCategory;
   }
 
-  constructor(private playerService: PlayerService, private gameService: GameService) {}
+  public get gameFinished(): boolean {
+    return this.playerService.players.every(
+      (player) => player.finishedCategoriesCount == this.gameService.categoryCount
+    );
+  }
+
+  constructor(
+    private playerService: PlayerService,
+    private gameService: GameService,
+    private persistenceService: PersistenceService,
+    private platform: Platform
+  ) {}
 
   @HostListener('window:beforeunload', ['$event'])
   public beforeUnload(): boolean {
@@ -50,5 +63,23 @@ export class GamePage implements CanLeaveGame {
     if (player.subTotal(this.topCategories) >= this.gameService.bonusThreshold)
       player.setPoints(this.gameService.bonusCategory, this.gameService.bonusCategory.fixedPoints);
     else player.setPoints(this.gameService.bonusCategory, 0);
+  }
+
+  public async saveResults(): Promise<void> {
+    const data = this.playerService.export();
+    const key = 'Results_' + new Date().getTime();
+    if (!this.platform.is('cordova')) {
+      //download results
+      const blob = new Blob([data], { type: 'application/json' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = key;
+      a.click();
+      return;
+    }
+
+    // store results on device
+    await this.persistenceService.store(key, data);
   }
 }

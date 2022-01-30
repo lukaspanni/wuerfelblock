@@ -37,6 +37,13 @@ export class BrowserPersistenceService extends PersistenceService {
     document.cookie = 'data=; expires=' + date.toUTCString() + ';';
   }
 
+  public async keys(): Promise<string[]> {
+    const cookieData = this.getCookieData();
+    const keys: string[] = [];
+    cookieData.data.forEach((element) => keys.push(...Object.getOwnPropertyNames(element)));
+    return keys;
+  }
+
   private getCookieData(): { data: any[] } {
     //try to get existing data
     const matches = document.cookie.match(this.dataRegex);

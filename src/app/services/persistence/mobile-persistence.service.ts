@@ -23,12 +23,19 @@ export class MobilePersistenceService extends PersistenceService {
     await this.ready;
     await this.storage.set(key, data);
   }
+
   public async retrieve(key: string): Promise<string> {
     await this.ready;
     return this.storage.get(key);
   }
+
   public async clear(): Promise<void> {
     await this.ready;
     await this.storage.clear();
+  }
+
+  public async keys(): Promise<string[]> {
+    await this.ready;
+    return this.storage.keys();
   }
 }

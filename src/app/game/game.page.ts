@@ -2,6 +2,7 @@ import { Component, HostListener, ViewEncapsulation } from '@angular/core';
 import { Platform } from '@ionic/angular';
 import { Category } from '../model/category';
 import { Player } from '../model/player';
+import { resultsStorageKey } from '../results/results.page';
 import { GameService } from '../services/game.service';
 import { PersistenceService } from '../services/persistence/persistence.service';
 import { PlayerService } from '../services/player.service';
@@ -67,7 +68,7 @@ export class GamePage implements CanLeaveGame {
 
   public async saveResults(): Promise<void> {
     const data = this.playerService.export();
-    const key = 'Results_' + new Date().getTime();
+    const key = resultsStorageKey + '_' + new Date().getTime();
     if (!this.platform.is('cordova')) {
       //download results
       const blob = new Blob([data], { type: 'application/json' });
@@ -79,6 +80,7 @@ export class GamePage implements CanLeaveGame {
       return;
     }
 
+    //TODO: maybe push to existing results array
     // store results on device
     await this.persistenceService.store(key, data);
   }

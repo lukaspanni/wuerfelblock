@@ -6,4 +6,19 @@
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
-<ion-content> </ion-content>
+<ion-content class="ion-padding">
+  <h3>Ergebnisse</h3>
+  <ion-card *ngFor="let result of storedResults">
+    <ion-card-header>
+      <ion-card-title>Ergebnis vom {{result.date | date:'short' }}</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-list>
+        <ion-item *ngFor="let points of result.points">
+          <ion-label> {{points.player}} </ion-label>
+          <ion-note slot="end" color="secondary">{{points.points}}</ion-note>
+        </ion-item>
+      </ion-list>
+    </ion-card-content>
+  </ion-card>
+</ion-content>

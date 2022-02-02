@@ -46,7 +46,7 @@ export class GameService {
   }
 
   public get categoryCount(): number {
-    return this._complexCategories.length + this._singleNumberCategories.length + 1;
+    return this._complexCategories.length + this._singleNumberCategories.length;
   }
 
   constructor() {}

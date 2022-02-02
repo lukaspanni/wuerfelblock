@@ -8,6 +8,12 @@
 </ion-header>
 <ion-content class="ion-padding">
   <h3>Ergebnisse</h3>
+  <ion-card *ngIf="storedResults.length < 1">
+    <ion-card-header>
+      <ion-card-title>Noch keine Ergebnisse gespeichert</ion-card-title>
+      <ion-card-subtitle>Nach dem nächsten Spiel die Ergebnisse speichern</ion-card-subtitle>
+    </ion-card-header>
+  </ion-card>
   <ion-card *ngFor="let result of storedResults">
     <ion-card-header>
       <ion-card-title>Ergebnis vom {{result.date | date:'short' }}</ion-card-title>

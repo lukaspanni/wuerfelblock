@@ -1,5 +1,5 @@
 import { Component, HostListener, ViewEncapsulation } from '@angular/core';
-import { Platform } from '@ionic/angular';
+import { AlertController, Platform } from '@ionic/angular';
 import { Category } from '../model/category';
 import { Player } from '../model/player';
 import { resultsStorageKey } from '../results/results.page';
@@ -13,6 +13,8 @@ import { CanLeaveGame } from './keep-game-active.guard';
   encapsulation: ViewEncapsulation.None
 })
 export class GamePage implements CanLeaveGame {
+  public stored = false;
+
   public get players(): Player[] {
     return this.playerService.players;
   }
@@ -67,6 +69,7 @@ export class GamePage implements CanLeaveGame {
   }
 
   public async saveResults(): Promise<void> {
+    this.stored = false;
     const data = this.playerService.export();
     const key = resultsStorageKey + '_' + new Date().getTime();
     if (!this.platform.is('cordova')) {
@@ -83,5 +86,6 @@ export class GamePage implements CanLeaveGame {
     //TODO: maybe push to existing results array
     // store results on device
     await this.persistenceService.store(key, data);
+    this.stored = true;
   }
 }

@@ -7,36 +7,38 @@
   </ion-toolbar>
 </ion-header>
 <ion-content class="ion-padding">
-  <h3>Bestenliste</h3>
-  <ion-list id="leaderboard">
-    <ion-item>
-      <ion-label>Spieler</ion-label>
-      <ion-note slot="end">Punkte</ion-note>
-    </ion-item>
-    <ion-item *ngFor="let entry of leaderboard; let rank = index">
-      <ion-text slot="start" color="medium"> {{rank+1}}. </ion-text>
-      <ion-label>{{entry.player}}</ion-label>
-      <ion-note slot="end">{{entry.points}}</ion-note>
-    </ion-item>
-  </ion-list>
-  <h4>Alle Ergebnisse</h4>
   <ion-card *ngIf="storedResults.length < 1">
     <ion-card-header>
       <ion-card-title>Noch keine Ergebnisse gespeichert</ion-card-title>
       <ion-card-subtitle>Nach dem nächsten Spiel die Ergebnisse speichern</ion-card-subtitle>
     </ion-card-header>
   </ion-card>
-  <ion-card *ngFor="let result of storedResults">
-    <ion-card-header>
-      <ion-card-title>Ergebnis vom {{result.date | date:'short' }}</ion-card-title>
-    </ion-card-header>
-    <ion-card-content>
-      <ion-list>
-        <ion-item *ngFor="let points of result.points">
-          <ion-label> {{points.player}} </ion-label>
-          <ion-note slot="end" color="secondary">{{points.points}}</ion-note>
-        </ion-item>
-      </ion-list>
-    </ion-card-content>
-  </ion-card>
+  <div *ngIf="storedResults.length >= 1">
+    <h3>Bestenliste</h3>
+    <ion-list id="leaderboard">
+      <ion-item>
+        <ion-label>Spieler</ion-label>
+        <ion-note slot="end">Punkte</ion-note>
+      </ion-item>
+      <ion-item *ngFor="let entry of leaderboard; let rank = index">
+        <ion-text slot="start" color="medium"> {{rank+1}}. </ion-text>
+        <ion-label>{{entry.player}}</ion-label>
+        <ion-note slot="end">{{entry.points}}</ion-note>
+      </ion-item>
+    </ion-list>
+    <h4>Alle Ergebnisse</h4>
+    <ion-card *ngFor="let result of storedResults">
+      <ion-card-header>
+        <ion-card-title>Ergebnis vom {{result.date | date:'short' }}</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-list>
+          <ion-item *ngFor="let points of result.points">
+            <ion-label> {{points.player}} </ion-label>
+            <ion-note slot="end" color="secondary">{{points.points}}</ion-note>
+          </ion-item>
+        </ion-list>
+      </ion-card-content>
+    </ion-card>
+  </div>
 </ion-content>

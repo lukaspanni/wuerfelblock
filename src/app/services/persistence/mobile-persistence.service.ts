@@ -26,7 +26,9 @@ export class MobilePersistenceService extends PersistenceService {
 
   public async retrieve(key: string): Promise<string> {
     await this.ready;
-    return this.storage.get(key);
+    const value = await this.storage.get(key);
+    if (value != undefined) return value;
+    return '';
   }
 
   public async clear(): Promise<void> {
@@ -36,6 +38,6 @@ export class MobilePersistenceService extends PersistenceService {
 
   public async keys(): Promise<string[]> {
     await this.ready;
-    return this.storage.keys();
+    return this.storage.keys().catch(() => []);
   }
 }

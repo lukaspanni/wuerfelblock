@@ -1,5 +1,5 @@
 import { Component, HostListener, ViewEncapsulation } from '@angular/core';
-import { AlertController, Platform } from '@ionic/angular';
+import { Platform } from '@ionic/angular';
 import { Category } from '../model/category';
 import { Player } from '../model/player';
 import { resultsStorageKey } from '../results/results.page';
@@ -36,9 +36,7 @@ export class GamePage implements CanLeaveGame {
   }
 
   public get gameFinished(): boolean {
-    return this.playerService.players.every(
-      (player) => player.finishedCategoriesCount == this.gameService.categoryCount
-    );
+    return this.players.every((player) => player.finishedCategoriesCount == this.gameService.categoryCount);
   }
 
   constructor(
@@ -58,7 +56,7 @@ export class GamePage implements CanLeaveGame {
   }
 
   public currentPlacement(player: Player): number {
-    const sortedPoints = new Set(this.playerService.players.map((p) => Number(p.totalPoints)).sort((a, b) => b - a));
+    const sortedPoints = new Set(this.players.map((p) => Number(p.totalPoints)).sort((a, b) => b - a));
     return Array.from(sortedPoints).indexOf(player.totalPoints) + 1;
   }
 
@@ -82,8 +80,6 @@ export class GamePage implements CanLeaveGame {
       a.click();
       return;
     }
-
-    //TODO: maybe push to existing results array
     // store results on device
     await this.persistenceService.store(key, data);
     this.stored = true;

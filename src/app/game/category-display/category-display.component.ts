@@ -1,5 +1,5 @@
 import { AfterViewInit, Component, Input } from '@angular/core';
-import { IonCheckbox, IonInput } from '@ionic/angular';
+import { IonInput } from '@ionic/angular';
 import { Category } from 'src/app/model/category';
 import { Player } from 'src/app/model/player';
 
@@ -41,14 +41,14 @@ export class CategoryDisplayComponent implements AfterViewInit {
 
   public setPoints(player: Player, category: Category, eventTarget: EventTarget): void {
     const input = eventTarget as unknown as IonInput;
-    const points = Number(input.value);
-
-    if (!category.inputValidation(points) || (input.value as string).length === 0) {
+    if ((input.value as string).length === 0) {
       input.value = ' ';
       return;
     }
-    if (input.value === '') {
-      player.setPoints(category, undefined);
+
+    const points = Number(input.value);
+    if (!category.inputValidation(points)) {
+      input.value = ' ';
       return;
     }
     player.setPoints(category, points);

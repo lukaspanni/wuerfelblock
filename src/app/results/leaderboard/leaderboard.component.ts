@@ -5,7 +5,7 @@ export type LeaderboardEntry = ResultEntry & { placement: number };
 export type Leaderboard = LeaderboardEntry[];
 
 @Component({
-  selector: 'app-leaderboard',
+  selector: 'wb-leaderboard',
   templateUrl: './leaderboard.component.html',
   styleUrls: ['./leaderboard.component.scss']
 })

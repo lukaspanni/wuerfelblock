@@ -16,9 +16,9 @@
   <div *ngIf="storedResults.length >= 1">
     <h2 id="header-leaderboards">Bestenlisten</h2>
     <h3>Bestenliste - Punkte pro Spiel</h3>
-    <app-leaderboard [leaderboardData]="leaderboardPointsPerGame"></app-leaderboard>
+    <wb-leaderboard [leaderboardData]="leaderboardPointsPerGame"></wb-leaderboard>
     <h3>Bestenliste - Gesamtpunktzahl</h3>
-    <app-leaderboard [leaderboardData]="leaderboardTotalPoints"></app-leaderboard>
+    <wb-leaderboard [leaderboardData]="leaderboardTotalPoints"></wb-leaderboard>
     <h4>Alle Ergebnisse</h4>
     <ion-card *ngFor="let result of storedResults">
       <ion-card-header>

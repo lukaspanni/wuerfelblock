@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/dot-notation */
+
 import { TestBed } from '@angular/core/testing';
 import { MobilePersistenceService } from './mobile-persistence.service';
 import { Storage } from '@ionic/storage-angular';

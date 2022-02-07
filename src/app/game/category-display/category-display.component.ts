@@ -15,9 +15,10 @@ enum CheckBoxState {
   styleUrls: ['./category-display.component.scss']
 })
 export class CategoryDisplayComponent implements AfterViewInit {
-  @Input() categories: Category[];
-  @Input() players: Player[];
-  @Input() columnWidth: number;
+  @Input() public categories: Category[];
+  @Input() public players: Player[];
+  @Input() public columnWidth: number;
+  @Input() public disabled = false;
 
   public checkBoxStateMap: Map<Player, Map<string, CheckBoxState>> = new Map();
 

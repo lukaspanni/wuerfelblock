@@ -14,18 +14,11 @@
     </ion-card-header>
   </ion-card>
   <div *ngIf="storedResults.length >= 1">
-    <h3>Bestenliste</h3>
-    <ion-list id="leaderboard">
-      <ion-item>
-        <ion-label>Spieler</ion-label>
-        <ion-note slot="end">Punkte</ion-note>
-      </ion-item>
-      <ion-item *ngFor="let entry of leaderboard; let rank = index">
-        <ion-text slot="start" color="medium"> {{rank+1}}. </ion-text>
-        <ion-label>{{entry.player}}</ion-label>
-        <ion-note slot="end">{{entry.points}}</ion-note>
-      </ion-item>
-    </ion-list>
+    <h2 id="header-leaderboards">Bestenlisten</h2>
+    <h3>Bestenliste - Punkte pro Spiel</h3>
+    <app-leaderboard [leaderboardData]="leaderboardPointsPerGame"></app-leaderboard>
+    <h3>Bestenliste - Gesamtpunktzahl</h3>
+    <app-leaderboard [leaderboardData]="leaderboardTotalPoints"></app-leaderboard>
     <h4>Alle Ergebnisse</h4>
     <ion-card *ngFor="let result of storedResults">
       <ion-card-header>

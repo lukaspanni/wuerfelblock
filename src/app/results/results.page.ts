@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { Player } from '../model/player';
 import { PersistenceService } from '../services/persistence/persistence.service';
+import { Leaderboard, LeaderboardEntry } from './leaderboard/leaderboard.component';
 export const resultsStorageKey = 'Results';
 
 export type GameResult = {
@@ -13,26 +13,45 @@ export type ResultEntry = {
   points: number;
 };
 
-export type LeaderboardEntry = ResultEntry;
-
 @Component({
   templateUrl: './results.page.html',
   styleUrls: ['./results.page.scss']
 })
 export class ResultsPage implements OnInit {
-  public storedResults: GameResult[] = [];
+  public storedResults: GameResult[] = [
+    {
+      date: new Date(),
+      points: [
+        { player: 'Lukas', points: 10 },
+        { player: 'Linda', points: 15 }
+      ]
+    },
+    {
+      date: new Date(),
+      points: [
+        { player: 'Lukas', points: 15 },
+        { player: 'Linda', points: 10 },
+        { player: 'Matthis', points: 16 }
+      ]
+    }
+  ];
 
-  private _leaderboard: LeaderboardEntry[] = [];
+  private _leaderboardTotalPoints: LeaderboardEntry[] = [];
+  private _leaderboardPointsPerGame: LeaderboardEntry[] = [];
 
-  public get leaderboard(): LeaderboardEntry[] {
-    return this._leaderboard;
+  public get leaderboardTotalPoints(): LeaderboardEntry[] {
+    return this._leaderboardTotalPoints;
+  }
+
+  public get leaderboardPointsPerGame(): LeaderboardEntry[] {
+    return this._leaderboardPointsPerGame;
   }
 
   constructor(private persistenceService: PersistenceService) {}
 
   public async ngOnInit(): Promise<void> {
     await this.loadStoredResults();
-    this.buildLeaderboard();
+    this.buildLeaderboards();
   }
 
   public async loadStoredResults(): Promise<void> {
@@ -45,22 +64,49 @@ export class ResultsPage implements OnInit {
     results.forEach((result) => this.storedResults.push(JSON.parse(result)));
   }
 
-  private buildLeaderboard(): void {
+  private buildLeaderboards(): void {
     if (this.storedResults.length == 0) return;
-    const playerTotalPoints = this.storedResults
-      .flatMap((result) => result.points)
-      .map((points) => ({ player: normalizeString(points.player), points: points.points }))
-      .reduce(
-        (map, element) => map.set(element.player, (map.get(element.player) ?? 0) + element.points),
-        new Map<string, number>()
-      );
-    this._leaderboard = Array.from(playerTotalPoints)
-      .sort((a, b) => b[1] - a[1])
-      .map((element) => ({ player: element[0], points: element[1] }));
+    this.buildTotalPointsLeaderboard();
+    this.buildPointsPerGameLeaderboard();
+  }
+
+  private buildTotalPointsLeaderboard(): void {
+    const playerTotalPoints = flattenResults(this.storedResults).reduce(
+      (map, element) => map.set(element.player, (map.get(element.player) ?? 0) + element.points),
+      new Map<string, number>()
+    );
+    this._leaderboardTotalPoints = computeLeaderboard(playerTotalPoints);
+  }
+
+  private buildPointsPerGameLeaderboard(): void {
+    const playerPointsPerGame = flattenResults(this.storedResults).reduce(
+      (map, element) => map.set(element.player, computeIncrementalAverage(map.get(element.player), element.points)),
+      new Map<string, number>()
+    );
+    this._leaderboardPointsPerGame = computeLeaderboard(playerPointsPerGame);
   }
 }
 
 const normalizeString = (input: string): string => {
   const lower = input.trim().toLowerCase();
   return lower.charAt(0).toUpperCase() + lower.slice(1);
+};
+
+const flattenResults = (results: GameResult[]): ResultEntry[] =>
+  results
+    .flatMap((result) => result.points)
+    .map((points) => ({ player: normalizeString(points.player), points: points.points }));
+
+const computeIncrementalAverage = (mapElement: number | undefined, points: number): number => {
+  if (mapElement == undefined) return points;
+  return (mapElement + points) / 2;
+};
+
+const computeLeaderboard = (pointsMap: Map<string, number>): Leaderboard => {
+  const sortedEntries = Array.from(pointsMap).sort((a, b) => b[1] - a[1]);
+  return sortedEntries.map((element) => ({
+    player: element[0],
+    points: element[1],
+    placement: sortedEntries.findIndex((el) => el[1] === element[1]) + 1
+  }));
 };

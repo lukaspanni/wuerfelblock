@@ -38,6 +38,6 @@ export class ResultsAvailableGuard implements CanActivate, CanLoad {
   }
 
   private allowNavigation(): boolean {
-    return this.platform.is('cordova');
+    return !environment.production || this.platform.is('cordova');
   }
 }

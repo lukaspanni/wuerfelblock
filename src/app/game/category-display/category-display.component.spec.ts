@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/dot-notation */
+
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 import { Category } from 'src/app/model/category';

@@ -1,5 +1,5 @@
 import { Component, HostListener, ViewEncapsulation } from '@angular/core';
-import { Platform } from '@ionic/angular';
+import { AlertController, Platform } from '@ionic/angular';
 import { Category } from '../model/category';
 import { Player } from '../model/player';
 import { resultsStorageKey } from '../results/results.page';
@@ -13,7 +13,8 @@ import { CanLeaveGame } from './keep-game-active.guard';
   encapsulation: ViewEncapsulation.None
 })
 export class GamePage implements CanLeaveGame {
-  public stored = false;
+  private _resultsStored = false;
+  private _inputDisabled = false; // maybe provide reset
 
   public get players(): Player[] {
     return this.playerService.players;
@@ -36,14 +37,23 @@ export class GamePage implements CanLeaveGame {
   }
 
   public get gameFinished(): boolean {
-    return this.players.every((player) => player.finishedCategoriesCount == this.gameService.categoryCount);
+    return this.players.every((player) => player.finishedCategoriesCount >= this.gameService.categoryCount);
+  }
+
+  public get resultsStored(): boolean {
+    return this._resultsStored;
+  }
+
+  public get inputDisabled(): boolean {
+    return this._inputDisabled;
   }
 
   constructor(
     private playerService: PlayerService,
     private gameService: GameService,
     private persistenceService: PersistenceService,
-    private platform: Platform
+    private platform: Platform,
+    private alertController: AlertController
   ) {}
 
   @HostListener('window:beforeunload', ['$event'])
@@ -66,8 +76,8 @@ export class GamePage implements CanLeaveGame {
     else player.setPoints(this.gameService.bonusCategory, 0);
   }
 
-  public async saveResults(): Promise<void> {
-    this.stored = false;
+  public async storeResults(): Promise<void> {
+    this._resultsStored = false;
     const data = this.playerService.export();
     const key = resultsStorageKey + '_' + new Date().getTime();
     if (!this.platform.is('cordova')) {
@@ -78,10 +88,22 @@ export class GamePage implements CanLeaveGame {
       a.href = url;
       a.download = key;
       a.click();
-      return;
     }
     // store results on device
-    await this.persistenceService.store(key, data);
-    this.stored = true;
+    else await this.persistenceService.store(key, data);
+
+    await this.showStoredAlert();
+    this._inputDisabled = true;
+    this._resultsStored = true;
+  }
+
+  private async showStoredAlert(): Promise<void> {
+    const alert = await this.alertController.create({
+      header: 'Ergebnisse gespeichert',
+      message: 'Die aktuellen Ergebnisse wurden erfolgreich gespeichert',
+      buttons: ['OK']
+    });
+
+    await alert.present();
   }
 }

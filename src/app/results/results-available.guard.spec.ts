@@ -1,6 +1,9 @@
+/* eslint-disable @typescript-eslint/dot-notation */
+
 import { TestBed } from '@angular/core/testing';
 import { RouterTestingModule } from '@angular/router/testing';
 import { Platform } from '@ionic/angular';
+import { environment } from 'src/environments/environment';
 
 import { ResultsAvailableGuard } from './results-available.guard';
 
@@ -12,6 +15,7 @@ describe('ResultsAvailableGuard', () => {
       imports: [RouterTestingModule]
     });
     guard = TestBed.inject(ResultsAvailableGuard);
+    environment.production = true;
   });
 
   it('should be created', () => {

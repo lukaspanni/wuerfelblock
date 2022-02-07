@@ -30,12 +30,14 @@
           (ionChange)="setPoints(player, category, $event.target)"
           [max]="category.maxPoints"
           [input]="player.getPoints(category)"
+          [disabled]="disabled"
         >
         </ion-input>
       </ion-item>
       <ion-checkbox
         *ngIf="showCheckbox(category) && !indeterminateState(player, category)"
         (click)="checkboxClicked(player, category, $event)"
+        [disabled]="disabled"
       >
       </ion-checkbox>
       <ion-checkbox

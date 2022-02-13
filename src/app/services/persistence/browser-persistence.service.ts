@@ -31,6 +31,10 @@ export class BrowserPersistenceService extends PersistenceService {
     return cookieData.data[index][key];
   }
 
+  public async delete(key: string): Promise<void> {
+    return this.store(key, ''); //does not really delete data, key will still be available
+  }
+
   public async clear(): Promise<void> {
     const date = new Date();
     date.setTime(date.getTime() + -1 * 24 * 60 * 60 * 1000);

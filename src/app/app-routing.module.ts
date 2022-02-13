@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
 import { GameModule } from './game/game.module';
+import { ResultsAvailableGuard } from './results/results-available.guard';
 import { ResultsPageModule } from './results/results.module';
 import { SetupCompleteGuard } from './setup/setup-complete.guard';
 import { SetupPageModule } from './setup/setup.module';
@@ -19,7 +20,8 @@ const routes: Routes = [
   {
     path: 'results',
     loadChildren: (): Promise<ResultsPageModule | void> =>
-      import('./results/results.module').then((m) => m.ResultsPageModule)
+      import('./results/results.module').then((m) => m.ResultsPageModule),
+    canLoad: [ResultsAvailableGuard]
   },
   {
     path: 'startup',

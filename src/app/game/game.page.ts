@@ -1,7 +1,10 @@
 import { Component, HostListener, ViewEncapsulation } from '@angular/core';
+import { AlertController, Platform } from '@ionic/angular';
 import { Category } from '../model/category';
 import { Player } from '../model/player';
+import { resultsStorageKey } from '../results/results.page';
 import { GameService } from '../services/game.service';
+import { PersistenceService } from '../services/persistence/persistence.service';
 import { PlayerService } from '../services/player.service';
 import { CanLeaveGame } from './keep-game-active.guard';
 @Component({
@@ -10,6 +13,9 @@ import { CanLeaveGame } from './keep-game-active.guard';
   encapsulation: ViewEncapsulation.None
 })
 export class GamePage implements CanLeaveGame {
+  private _resultsStored = false;
+  private _inputDisabled = false; // maybe provide reset
+
   public get players(): Player[] {
     return this.playerService.players;
   }
@@ -30,7 +36,25 @@ export class GamePage implements CanLeaveGame {
     return this.gameService.bonusCategory;
   }
 
-  constructor(private playerService: PlayerService, private gameService: GameService) {}
+  public get gameFinished(): boolean {
+    return this.players.every((player) => player.finishedCategoriesCount >= this.gameService.categoryCount);
+  }
+
+  public get resultsStored(): boolean {
+    return this._resultsStored;
+  }
+
+  public get inputDisabled(): boolean {
+    return this._inputDisabled;
+  }
+
+  constructor(
+    private playerService: PlayerService,
+    private gameService: GameService,
+    private persistenceService: PersistenceService,
+    private platform: Platform,
+    private alertController: AlertController
+  ) {}
 
   @HostListener('window:beforeunload', ['$event'])
   public beforeUnload(): boolean {
@@ -42,7 +66,7 @@ export class GamePage implements CanLeaveGame {
   }
 
   public currentPlacement(player: Player): number {
-    const sortedPoints = new Set(this.playerService.players.map((p) => Number(p.totalPoints)).sort((a, b) => b - a));
+    const sortedPoints = new Set(this.players.map((p) => Number(p.totalPoints)).sort((a, b) => b - a));
     return Array.from(sortedPoints).indexOf(player.totalPoints) + 1;
   }
 
@@ -50,5 +74,36 @@ export class GamePage implements CanLeaveGame {
     if (player.subTotal(this.topCategories) >= this.gameService.bonusThreshold)
       player.setPoints(this.gameService.bonusCategory, this.gameService.bonusCategory.fixedPoints);
     else player.setPoints(this.gameService.bonusCategory, 0);
+  }
+
+  public async storeResults(): Promise<void> {
+    this._resultsStored = false;
+    const data = this.playerService.export();
+    const key = resultsStorageKey + '_' + new Date().getTime();
+    if (!this.platform.is('cordova')) {
+      //download results
+      const blob = new Blob([data], { type: 'application/json' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = key;
+      a.click();
+    }
+    // store results on device
+    else await this.persistenceService.store(key, data);
+
+    await this.showStoredAlert();
+    this._inputDisabled = true;
+    this._resultsStored = true;
+  }
+
+  private async showStoredAlert(): Promise<void> {
+    const alert = await this.alertController.create({
+      header: 'Ergebnisse gespeichert',
+      message: 'Die aktuellen Ergebnisse wurden erfolgreich gespeichert',
+      buttons: ['OK']
+    });
+
+    await alert.present();
   }
 }

@@ -31,10 +31,21 @@ export class BrowserPersistenceService extends PersistenceService {
     return cookieData.data[index][key];
   }
 
+  public async delete(key: string): Promise<void> {
+    return this.store(key, ''); //does not really delete data, key will still be available
+  }
+
   public async clear(): Promise<void> {
     const date = new Date();
     date.setTime(date.getTime() + -1 * 24 * 60 * 60 * 1000);
     document.cookie = 'data=; expires=' + date.toUTCString() + ';';
+  }
+
+  public async keys(): Promise<string[]> {
+    const cookieData = this.getCookieData();
+    const keys: string[] = [];
+    cookieData.data.forEach((element) => keys.push(...Object.getOwnPropertyNames(element)));
+    return keys;
   }
 
   private getCookieData(): { data: any[] } {

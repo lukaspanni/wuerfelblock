@@ -1,9 +1,12 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
     <ion-title> Würfelblock </ion-title>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/startup"></ion-back-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
-<ion-content>
+<ion-content class="ion-padding">
   <ion-grid class="main-block" fixed>
     <ion-row>
       <ion-col [size]="columnWidth"></ion-col>
@@ -12,7 +15,12 @@
       </ion-col>
     </ion-row>
 
-    <wb-category-display [players]="players" [categories]="topCategories" [columnWidth]="columnWidth">
+    <wb-category-display
+      [players]="players"
+      [categories]="topCategories"
+      [columnWidth]="columnWidth"
+      [disabled]="inputDisabled"
+    >
     </wb-category-display>
 
     <ion-row class="subtotal">
@@ -46,7 +54,12 @@
       </ion-col>
     </ion-row>
 
-    <wb-category-display [players]="players" [categories]="bottomCategories" [columnWidth]="columnWidth">
+    <wb-category-display
+      [players]="players"
+      [categories]="bottomCategories"
+      [columnWidth]="columnWidth"
+      [disabled]="inputDisabled"
+    >
     </wb-category-display>
 
     <ion-row class="total">
@@ -56,4 +69,9 @@
       </ion-col>
     </ion-row>
   </ion-grid>
+
+  <ion-button (click)="storeResults()" expand="block" color="success" [hidden]="!gameFinished && !resultsStored">
+    <ion-icon slot="end" name="save-outline"></ion-icon>
+    Ergebnisse speichern
+  </ion-button>
 </ion-content>

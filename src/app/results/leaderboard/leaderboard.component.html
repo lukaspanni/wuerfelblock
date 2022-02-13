@@ -1,0 +1,11 @@
+<ion-list class="leaderboard">
+  <ion-item>
+    <ion-label>Spieler</ion-label>
+    <ion-note slot="end">Punkte</ion-note>
+  </ion-item>
+  <ion-item *ngFor="let entry of leaderboardData; let rank = index">
+    <ion-text slot="start" color="medium"> {{ entry.placement }}. </ion-text>
+    <ion-label>{{ entry.player }}</ion-label>
+    <ion-note slot="end">{{ entry.points }}</ion-note>
+  </ion-item>
+</ion-list>

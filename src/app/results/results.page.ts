@@ -18,23 +18,7 @@ export type ResultEntry = {
   styleUrls: ['./results.page.scss']
 })
 export class ResultsPage implements OnInit {
-  public storedResults: GameResult[] = [
-    {
-      date: new Date(),
-      points: [
-        { player: 'Lukas', points: 10 },
-        { player: 'Linda', points: 15 }
-      ]
-    },
-    {
-      date: new Date(),
-      points: [
-        { player: 'Lukas', points: 15 },
-        { player: 'Linda', points: 10 },
-        { player: 'Matthis', points: 16 }
-      ]
-    }
-  ];
+  public storedResults: GameResult[] = [];
 
   private _leaderboardTotalPoints: LeaderboardEntry[] = [];
   private _leaderboardPointsPerGame: LeaderboardEntry[] = [];
@@ -61,7 +45,14 @@ export class ResultsPage implements OnInit {
       .filter((key) => key.startsWith(resultsStorageKey))
       .map((key) => this.persistenceService.retrieve(key));
     const results = await Promise.all(resultPromises);
-    results.forEach((result) => this.storedResults.push(JSON.parse(result)));
+    results.filter((result) => result.length > 0).forEach((result) => this.storedResults.push(JSON.parse(result)));
+  }
+
+  public async deleteResult(result: GameResult): Promise<void> {
+    const key = resultsStorageKey + '_' + result.date.getTime();
+    await this.persistenceService.delete(key);
+    this.storedResults = this.storedResults.filter((res) => res.date.getTime() !== result.date.getTime());
+    this.buildLeaderboards();
   }
 
   private buildLeaderboards(): void {

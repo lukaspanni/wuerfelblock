@@ -22,7 +22,12 @@
     <h4>Alle Ergebnisse</h4>
     <ion-card *ngFor="let result of storedResults">
       <ion-card-header>
-        <ion-card-title>Ergebnis vom {{result.date | date:'short' }}</ion-card-title>
+        <ion-item lines="none">
+          <ion-button (click)="deleteResult(result)" fill="clear" size="small" color="medium" slot="end">
+            <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
+          </ion-button>
+          <ion-card-title>Ergebnis vom {{result.date | date:'short' }}</ion-card-title>
+        </ion-item>
       </ion-card-header>
       <ion-card-content>
         <ion-list>

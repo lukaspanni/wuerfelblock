@@ -31,6 +31,11 @@ export class MobilePersistenceService extends PersistenceService {
     return '';
   }
 
+  public async delete(key: string): Promise<void> {
+    await this.ready;
+    await this.storage.remove(key);
+  }
+
   public async clear(): Promise<void> {
     await this.ready;
     await this.storage.clear();

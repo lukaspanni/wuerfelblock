@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/dot-notation */
 
 import { TestBed } from '@angular/core/testing';
-import { MobilePersistenceService } from './mobile-persistence.service';
+import { PersistenceService } from './persistence.service';
 import { Storage } from '@ionic/storage-angular';
 
-describe('MobilePersistenceService', () => {
-  let service: MobilePersistenceService;
+describe('PersistenceService', () => {
+  let service: PersistenceService;
   let storageSpy: Storage;
 
   beforeEach(async () => {
@@ -19,7 +19,7 @@ describe('MobilePersistenceService', () => {
     TestBed.configureTestingModule({
       providers: [{ provide: Storage, useValue: storageSpy }]
     });
-    service = TestBed.inject(MobilePersistenceService);
+    service = TestBed.inject(PersistenceService);
     await service.ready;
     service['storage'] = storageSpy; //supersede storage
   });

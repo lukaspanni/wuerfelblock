@@ -33,11 +33,16 @@ module.exports = function (config) {
     port: 9876,
     colors: true,
     logLevel: config.LOG_INFO,
-    autoWatch: false,
-    browsers: ['Chrome'],
-    singleRun: true,
-    restartOnFileChange: false,
+    autoWatch: true,
+    browsers: ['ChromeDebug'],
+    singleRun: false,
+    restartOnFileChange: true,
     customLaunchers: {
+      ChromeDebug: {
+        base: 'Chrome',
+        flags: ['--no-sandbox', '--remote-debugging-port=9222'],
+        debug: 'true'
+      },
       ChromeHeadlessCI: {
         base: 'ChromeHeadless',
         flags: ['--no-sandbox', '--disable-gpu']

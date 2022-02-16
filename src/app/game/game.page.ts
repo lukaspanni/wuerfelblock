@@ -52,7 +52,6 @@ export class GamePage implements CanLeaveGame {
     private playerService: PlayerService,
     private gameService: GameService,
     private persistenceService: PersistenceService,
-    private platform: Platform,
     private alertController: AlertController
   ) {}
 
@@ -80,17 +79,7 @@ export class GamePage implements CanLeaveGame {
     this._resultsStored = false;
     const data = this.playerService.export();
     const key = resultsStorageKey + '_' + new Date().getTime();
-    if (!this.platform.is('cordova')) {
-      //download results
-      const blob = new Blob([data], { type: 'application/json' });
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = key;
-      a.click();
-    }
-    // store results on device
-    else await this.persistenceService.store(key, data);
+    await this.persistenceService.store(key, data);
 
     await this.showStoredAlert();
     this._inputDisabled = true;

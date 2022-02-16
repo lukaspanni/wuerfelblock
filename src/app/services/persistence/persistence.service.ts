@@ -1,9 +1,46 @@
-export abstract class PersistenceService {
-  constructor() {}
+import { Injectable } from '@angular/core';
+import { Storage } from '@ionic/storage-angular';
+@Injectable({
+  providedIn: 'root'
+})
+export class PersistenceService {
+  public ready: Promise<boolean>;
 
-  public abstract store(key: string, data: string): Promise<void>;
-  public abstract delete(key: string): Promise<void>;
-  public abstract retrieve(key: string): Promise<string>;
-  public abstract clear(): Promise<void>;
-  public abstract keys(): Promise<string[]>;
+  private storage: Storage | undefined;
+
+  constructor(storage: Storage) {
+    let resolveFunction;
+    this.ready = new Promise((resolve) => (resolveFunction = resolve));
+    storage.create().then((value) => {
+      this.storage = value;
+      resolveFunction(true);
+    });
+  }
+
+  public async store(key: string, data: string): Promise<void> {
+    await this.ready;
+    await this.storage.set(key, data);
+  }
+
+  public async retrieve(key: string): Promise<string> {
+    await this.ready;
+    const value = await this.storage.get(key);
+    if (value != undefined) return value;
+    return '';
+  }
+
+  public async delete(key: string): Promise<void> {
+    await this.ready;
+    await this.storage.remove(key);
+  }
+
+  public async clear(): Promise<void> {
+    await this.ready;
+    await this.storage.clear();
+  }
+
+  public async keys(): Promise<string[]> {
+    await this.ready;
+    return this.storage.keys().catch(() => []);
+  }
 }

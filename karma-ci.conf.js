@@ -41,7 +41,7 @@ module.exports = function (config) {
     colors: true,
     logLevel: config.LOG_INFO,
     autoWatch: false,
-    browsers: ['ChromeHeadlessCI', 'FirefoxHeadlessCI', 'EdgeHeadlessCI'],
+    browsers: ['ChromeHeadlessCI', 'FirefoxHeadlessCI'],//, 'EdgeHeadlessCI'],
     singleRun: true,
     restartOnFileChange: false,
     customLaunchers: {

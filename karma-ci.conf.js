@@ -8,6 +8,8 @@ module.exports = function (config) {
     plugins: [
       require('karma-jasmine'),
       require('karma-chrome-launcher'),
+      require('karma-firefox-launcher'),
+      require('@chiragrupani/karma-chromium-edge-launcher'),
       require('karma-jasmine-html-reporter'),
       require('karma-junit-reporter'),
       require('karma-coverage'),
@@ -39,13 +41,20 @@ module.exports = function (config) {
     colors: true,
     logLevel: config.LOG_INFO,
     autoWatch: false,
-    browsers: ['ChromeHeadlessCI'],
+    browsers: ['ChromeHeadlessCI', 'FirefoxHeadlessCI', 'EdgeHeadlessCI'],
     singleRun: true,
     restartOnFileChange: false,
     customLaunchers: {
       ChromeHeadlessCI: {
         base: 'ChromeHeadless',
         flags: ['--no-sandbox', '--disable-gpu']
+      },
+      EdgeHeadlessCI: {
+        base: 'EdgeHeadless',
+        flags: ['--no-sandbox', '--disable-gpu']
+      },
+      FirefoxHeadlessCI: {
+        base: 'FirefoxHeadless'
       }
     }
   });

@@ -8,6 +8,8 @@ module.exports = function (config) {
     plugins: [
       require('karma-jasmine'),
       require('karma-chrome-launcher'),
+      require('karma-firefox-launcher'),
+      require('@chiragrupani/karma-chromium-edge-launcher'),
       require('karma-jasmine-html-reporter'),
       require('karma-coverage'),
       require('@angular-devkit/build-angular/plugins/karma')
@@ -43,9 +45,13 @@ module.exports = function (config) {
         flags: ['--no-sandbox', '--remote-debugging-port=9222'],
         debug: 'true'
       },
-      ChromeHeadlessCI: {
-        base: 'ChromeHeadless',
-        flags: ['--no-sandbox', '--disable-gpu']
+      EdgeDebug: {
+        base: 'Edge',
+        flags: ['--no-sandbox', '--remote-debugging-port=9222'],
+        debug: 'true'
+      },
+      FirefoxDebug: {
+        base: 'Firefox'
       }
     }
   });

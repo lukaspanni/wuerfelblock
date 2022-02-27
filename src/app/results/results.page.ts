@@ -45,7 +45,9 @@ export class ResultsPage implements OnInit {
       .filter((key) => key.startsWith(resultsStorageKey))
       .map((key) => this.persistenceService.retrieve(key));
     const results = await Promise.all(resultPromises);
-    results.filter((result) => result.length > 0).forEach((result) => this.storedResults.push(JSON.parse(result)));
+    results
+      .filter((result) => result.length > 0)
+      .forEach((result) => this.storedResults.push(this.parseGameResult(result)));
   }
 
   public async deleteResult(result: GameResult): Promise<void> {
@@ -75,6 +77,12 @@ export class ResultsPage implements OnInit {
       new Map<string, number>()
     );
     this._leaderboardPointsPerGame = computeLeaderboard(playerPointsPerGame);
+  }
+
+  private parseGameResult(result: string): GameResult {
+    const gameResult = JSON.parse(result);
+    if (gameResult.date !== undefined) gameResult.date = new Date(gameResult.date); // ensure date type
+    return gameResult as GameResult;
   }
 }
 

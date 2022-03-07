@@ -1,11 +1,4 @@
-<ion-header>
-  <ion-toolbar>
-    <ion-title>Setup</ion-title>
-    <ion-buttons slot="start">
-      <ion-back-button defaultHref="/startup"></ion-back-button>
-    </ion-buttons>
-  </ion-toolbar>
-</ion-header>
+<app-header title="Setup" backButtonDefaultHref="/startup"></app-header>
 <ion-content>
   <form (ngSubmit)="completePlayerSetup()" #userSetupForm="ngForm" class="ion-padding-end">
     <ion-item-group *ngFor="let player of setupPlayers; let i = index">

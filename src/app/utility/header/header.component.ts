@@ -17,7 +17,7 @@ export class HeaderComponent implements OnInit {
     this.hideSettingsButton = this.hideSettingsButton !== undefined;
   }
 
-  public navigateToSettings() {
+  public navigateToSettings(): void {
     //workaround because routerLink="/settings" is not working
     this.router.navigateByUrl('/settings');
   }

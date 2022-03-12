@@ -32,8 +32,11 @@ describe('SettingsService', () => {
     readyResolve();
     tick();
     expect(persistenceSpy.retrieve).toHaveBeenCalledWith('settings');
-    const actualTestSetting = (await service.settings)[0];
-    expect(actualTestSetting).toEqual(testSetting);
+    service.settings.subscribe((settings) => {
+      const actualTestSetting = settings[0];
+      console.log(actualTestSetting);
+      expect(actualTestSetting).toEqual(testSetting);
+    });
   }));
 
   it('storeSettings should store json settings', fakeAsync(async () => {

@@ -17,6 +17,8 @@ export class LeaderboardComponent implements OnChanges {
   private startIndex = 0;
   private _endIndex = 0;
 
+  constructor() {}
+
   public get showDisplayMoreButton(): boolean {
     return this.endIndex - this.startIndex < this.leaderboardData.length;
   }
@@ -38,8 +40,6 @@ export class LeaderboardComponent implements OnChanges {
     if (index > this.leaderboardData.length) index = this.leaderboardData.length;
     this._endIndex = index;
   }
-
-  constructor() {}
 
   public ngOnChanges(): void {
     this.endIndex = this.initialSize;

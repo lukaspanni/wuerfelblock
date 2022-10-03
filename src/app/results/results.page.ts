@@ -24,6 +24,8 @@ export class ResultsPage implements OnInit {
   private _leaderboardPointsPerGame: LeaderboardEntry[] = [];
   private _leaderboardMaxPointsPerGame: LeaderboardEntry[] = [];
 
+  constructor(private persistenceService: PersistenceService) {}
+
   public get leaderboardTotalPoints(): LeaderboardEntry[] {
     return this._leaderboardTotalPoints;
   }
@@ -35,8 +37,6 @@ export class ResultsPage implements OnInit {
   public get leaderboardMaxPointsPerGame(): LeaderboardEntry[] {
     return this._leaderboardMaxPointsPerGame;
   }
-
-  constructor(private persistenceService: PersistenceService) {}
 
   public async ngOnInit(): Promise<void> {
     await this.loadStoredResults();

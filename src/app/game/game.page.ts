@@ -16,6 +16,13 @@ export class GamePage implements CanLeaveGame {
   private _resultsStored = false;
   private _inputDisabled = false; // maybe provide reset
 
+  constructor(
+    private playerService: PlayerService,
+    private gameService: GameService,
+    private persistenceService: PersistenceService,
+    private alertController: AlertController
+  ) {}
+
   public get players(): Player[] {
     return this.playerService.players;
   }
@@ -47,13 +54,6 @@ export class GamePage implements CanLeaveGame {
   public get inputDisabled(): boolean {
     return this._inputDisabled;
   }
-
-  constructor(
-    private playerService: PlayerService,
-    private gameService: GameService,
-    private persistenceService: PersistenceService,
-    private alertController: AlertController
-  ) {}
 
   @HostListener('window:beforeunload', ['$event'])
   public beforeUnload(): boolean {

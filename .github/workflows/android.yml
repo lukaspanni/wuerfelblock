@@ -17,18 +17,12 @@ jobs:
     - uses: actions/setup-java@v2
       with:
         distribution: 'adopt'
-        java-version: '8'
+        java-version: '11'
 
-    - name: Use Node.js 14.x
+    - name: Use Node.js 16.x
       uses: actions/setup-node@v1
       with:
-        node-version: 14.x
-        
-    - name: Fix android build tools
-      run: |
-        SDKMANAGER=$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager
-        echo y | $SDKMANAGER --uninstall "build-tools;31.0.0"
-        echo y | $SDKMANAGER --uninstall "build-tools;32.0.0"
+        node-version: 16.x
 
 
     - name: Install global packages

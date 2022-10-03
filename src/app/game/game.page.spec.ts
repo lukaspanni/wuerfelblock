@@ -13,52 +13,50 @@ describe('GamePage', () => {
   let fixture: ComponentFixture<GamePage>;
   let persistenceSpy: PersistenceService;
 
-  beforeEach(
-    waitForAsync(() => {
-      persistenceSpy = jasmine.createSpyObj('PersistenceService', ['store', 'retrieve']);
-      TestBed.configureTestingModule({
-        declarations: [GamePage],
-        imports: [IonicModule.forRoot(), RouterTestingModule],
-        providers: [{ provide: PersistenceService, useValue: persistenceSpy }]
-      }).compileComponents();
+  beforeEach(waitForAsync(() => {
+    persistenceSpy = jasmine.createSpyObj('PersistenceService', ['store', 'retrieve']);
+    TestBed.configureTestingModule({
+      declarations: [GamePage],
+      imports: [IonicModule.forRoot(), RouterTestingModule],
+      providers: [{ provide: PersistenceService, useValue: persistenceSpy }]
+    }).compileComponents();
 
-      fixture = TestBed.createComponent(GamePage);
-      component = fixture.componentInstance;
-      fixture.detectChanges();
-    })
-  );
+    fixture = TestBed.createComponent(GamePage);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  }));
 
   it('should create', () => {
     expect(component).toBeTruthy();
   });
 
   it('canLeave should return true if all players have 0 points', () => {
-    const player1 = { totalPoints: 0 };
-    const player2 = { totalPoints: 0 };
+    const player1 = { totalPoints: 0 } as Player;
+    const player2 = { totalPoints: 0 } as Player;
     spyOnProperty(component, 'players').and.returnValue([player1, player2]);
 
     expect(component.canLeave()).toBeTrue();
   });
 
   it('canLeave should return false if not all players have 0 points', () => {
-    const player1 = { totalPoints: 1 };
-    const player2 = { totalPoints: 0 };
+    const player1 = { totalPoints: 1 } as Player;
+    const player2 = { totalPoints: 0 } as Player;
     spyOnProperty(component, 'players').and.returnValue([player1, player2]);
 
     expect(component.canLeave()).toBeFalse();
   });
 
   it('gameFinished should return true if every player has finished all categories', () => {
-    const player1 = { finishedCategoriesCount: 10 };
-    const player2 = { finishedCategoriesCount: 10 };
+    const player1 = { finishedCategoriesCount: 10 } as Player;
+    const player2 = { finishedCategoriesCount: 10 } as Player;
     (component['gameService'] as any) = { categoryCount: 10 };
     spyOnProperty(component, 'players').and.returnValue([player1, player2]);
     expect(component.gameFinished).toBeTrue();
   });
 
   it('gameFinished should return false if not every player has finished all categories', () => {
-    const player1 = { finishedCategoriesCount: 9 };
-    const player2 = { finishedCategoriesCount: 10 };
+    const player1 = { finishedCategoriesCount: 9 } as Player;
+    const player2 = { finishedCategoriesCount: 10 } as Player;
     (component['gameService'] as any) = { categoryCount: 10 };
     spyOnProperty(component, 'players').and.returnValue([player1, player2]);
     expect(component.gameFinished).toBeFalse();

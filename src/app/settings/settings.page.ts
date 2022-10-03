@@ -10,6 +10,8 @@ import { Setting, SettingsService } from './settings.service';
 export class SettingsPage implements OnInit {
   private _settings: Setting[] = [];
 
+  constructor(private settingsService: SettingsService) {}
+
   public get settings(): Setting[] {
     return this._settings;
   }
@@ -17,8 +19,6 @@ export class SettingsPage implements OnInit {
   public get settingsAvailable(): boolean {
     return this._settings.length > 0;
   }
-
-  constructor(private settingsService: SettingsService) {}
 
   public ngOnInit(): void {
     this.settingsService.settings.subscribe((settings) => {

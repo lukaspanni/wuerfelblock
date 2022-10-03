@@ -9,6 +9,8 @@ export class PlayerService {
   private _players: Player[] = [];
   private _setupComplete = false;
 
+  constructor() {}
+
   public get players(): Player[] {
     return this._players;
   }
@@ -16,8 +18,6 @@ export class PlayerService {
   public get setupComplete(): boolean {
     return this._setupComplete;
   }
-
-  constructor() {}
 
   public addPlayers(...players: Player[]): void {
     this._players.push(...players);

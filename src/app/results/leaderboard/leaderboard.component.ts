@@ -49,7 +49,7 @@ export class LeaderboardComponent implements OnInit {
     this.endIndex = this.endIndex + this.incrementSize;
   }
 
-  public displazInitial(): void {
+  public displayInitial(): void {
     this.endIndex = this.initialSize;
   }
 }

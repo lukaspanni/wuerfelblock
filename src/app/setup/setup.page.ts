@@ -18,18 +18,6 @@ export class SetupPage {
 
   private readonly lastSetupPlayerStorageKey = 'players';
 
-  public get playerValid(): boolean {
-    return this.playerCount > 0;
-  }
-
-  private get players(): Set<SetupPlayer> {
-    return new Set(this.setupPlayers.filter((player) => player.name !== ''));
-  }
-
-  private get playerCount(): number {
-    return this.players.size;
-  }
-
   constructor(
     private persistenceService: PersistenceService,
     private playerService: PlayerService,
@@ -37,6 +25,18 @@ export class SetupPage {
     private router: Router
   ) {
     this.loadPlayers();
+  }
+
+  public get playerValid(): boolean {
+    return this.playerCount > 0;
+  }
+
+  private get playerCount(): number {
+    return this.players.size;
+  }
+
+  private get players(): Set<SetupPlayer> {
+    return new Set(this.setupPlayers.filter((player) => player.name !== ''));
   }
 
   public async loadPlayers(): Promise<void> {

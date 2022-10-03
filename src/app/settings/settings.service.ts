@@ -17,12 +17,12 @@ export interface Setting {
 export class SettingsService {
   private _settings: Observable<Setting[]>;
 
-  public get settings(): Observable<Setting[]> {
-    return this._settings;
-  }
-
   constructor(private persistenceService: PersistenceService) {
     this.reload();
+  }
+
+  public get settings(): Observable<Setting[]> {
+    return this._settings;
   }
 
   public async storeSettings(settings: Setting[]): Promise<void> {

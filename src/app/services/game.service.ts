@@ -29,6 +29,8 @@ export class GameService {
     new Category('Chance', 30, 'alles zählt', undefined, defaultComplexInputValidation)
   ];
 
+  constructor() {}
+
   public get singleNumberCategories(): Category[] {
     return this._singleNumberCategories;
   }
@@ -48,8 +50,6 @@ export class GameService {
   public get categoryCount(): number {
     return this._complexCategories.length + this._singleNumberCategories.length;
   }
-
-  constructor() {}
 }
 
 const getDefaultSingleNumberInputValidation =

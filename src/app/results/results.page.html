@@ -19,6 +19,8 @@
     <wb-leaderboard [leaderboardData]="leaderboardPointsPerGame"></wb-leaderboard>
     <h3>Bestenliste - Gesamtpunktzahl</h3>
     <wb-leaderboard [leaderboardData]="leaderboardTotalPoints"></wb-leaderboard>
+    <h3>Bestenliste - maximale Punktzahl pro Spiel</h3>
+    <wb-leaderboard [leaderboardData]="leaderboardMaxPointsPerGame"></wb-leaderboard>
     <h4>Alle Ergebnisse</h4>
     <ion-card *ngFor="let result of storedResults">
       <ion-card-header>

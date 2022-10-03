@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnChanges } from '@angular/core';
 import { ResultEntry } from '../results.page';
 
 export type LeaderboardEntry = ResultEntry & { placement: number };
@@ -9,7 +9,7 @@ export type Leaderboard = LeaderboardEntry[];
   templateUrl: './leaderboard.component.html',
   styleUrls: ['./leaderboard.component.scss']
 })
-export class LeaderboardComponent implements OnInit {
+export class LeaderboardComponent implements OnChanges {
   @Input() public leaderboardData: Leaderboard = [];
   @Input() public initialSize = 3;
   @Input() public incrementSize = 3;
@@ -41,12 +41,13 @@ export class LeaderboardComponent implements OnInit {
 
   constructor() {}
 
-  public ngOnInit(): void {
+  public ngOnChanges(): void {
     this.endIndex = this.initialSize;
   }
 
   public displayMore(): void {
     this.endIndex = this.endIndex + this.incrementSize;
+    console.log(this.showDisplayMoreButton, this.leaderboardData.length);
   }
 
   public displayInitial(): void {

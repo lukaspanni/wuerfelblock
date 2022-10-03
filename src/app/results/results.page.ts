@@ -22,6 +22,7 @@ export class ResultsPage implements OnInit {
 
   private _leaderboardTotalPoints: LeaderboardEntry[] = [];
   private _leaderboardPointsPerGame: LeaderboardEntry[] = [];
+  private _leaderboardMaxPointsPerGame: LeaderboardEntry[] = [];
 
   public get leaderboardTotalPoints(): LeaderboardEntry[] {
     return this._leaderboardTotalPoints;
@@ -29,6 +30,10 @@ export class ResultsPage implements OnInit {
 
   public get leaderboardPointsPerGame(): LeaderboardEntry[] {
     return this._leaderboardPointsPerGame;
+  }
+
+  public get leaderboardMaxPointsPerGame(): LeaderboardEntry[] {
+    return this._leaderboardMaxPointsPerGame;
   }
 
   constructor(private persistenceService: PersistenceService) {}
@@ -61,6 +66,7 @@ export class ResultsPage implements OnInit {
     if (this.storedResults.length == 0) return;
     this.buildTotalPointsLeaderboard();
     this.buildPointsPerGameLeaderboard();
+    this.buildMaxPointsPerGameLeaderboard();
   }
 
   private buildTotalPointsLeaderboard(): void {
@@ -77,6 +83,14 @@ export class ResultsPage implements OnInit {
       new Map<string, number>()
     );
     this._leaderboardPointsPerGame = computeLeaderboard(playerPointsPerGame);
+  }
+
+  private buildMaxPointsPerGameLeaderboard(): void {
+    const playerMaxPointsPerGame = flattenResults(this.storedResults).reduce(
+      (map, element) => map.set(element.player, Math.max(map.get(element.player) ?? 0, element.points)),
+      new Map<string, number>()
+    );
+    this._leaderboardMaxPointsPerGame = computeLeaderboard(playerMaxPointsPerGame);
   }
 
   private parseGameResult(result: string): GameResult {

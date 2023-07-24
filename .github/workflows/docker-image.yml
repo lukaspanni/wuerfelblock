@@ -48,7 +48,8 @@ jobs:
             lukaspanni/wuerfelblock
             ghcr.io/${{ github.repository }}
           tags: |
-            type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', 'main') }}
+            type=raw,value=latest,enable=${{ (github.ref == 'refs/heads/main') || startsWith(github.ref, 'refs/tags/') }}
+            type=raw,value=stable,enable=${{ startsWith(github.ref, 'refs/tags/') }}
 
       - name: Build and push Docker images
         uses: docker/build-push-action@v4

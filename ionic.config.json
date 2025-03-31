@@ -1,7 +1,0 @@
-{
-  "name": "wuerfelblock",
-  "integrations": {
-    "cordova": {}
-  },
-  "type": "angular"
-}

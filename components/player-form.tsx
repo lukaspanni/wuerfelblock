@@ -7,6 +7,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { X } from "lucide-react";
+import { z } from "zod";
+import { saveToLocalStorage, loadFromLocalStorage } from "@/lib/local-storage";
+
+const lastGamePlayersSchema = z.array(z.string());
 
 interface PlayerFormProps {
   onStartGame: (players: string[]) => void;
@@ -18,14 +22,12 @@ export default function PlayerForm({ onStartGame }: PlayerFormProps) {
   const [hasLastGame, setHasLastGame] = useState(false);
 
   useEffect(() => {
-    const storedData = localStorage.getItem("lastGamePlayers");
-    if (storedData) {
-      try {
-        const lastPlayers = JSON.parse(storedData);
-        setHasLastGame(Array.isArray(lastPlayers) && lastPlayers.length > 0);
-      } catch (error) {
-        setHasLastGame(false);
-      }
+    const { ok, result } = loadFromLocalStorage(
+      "lastGamePlayers",
+      lastGamePlayersSchema,
+    );
+    if (ok && result) {
+      setHasLastGame(result.length > 0);
     } else {
       setHasLastGame(false);
     }
@@ -61,24 +63,18 @@ export default function PlayerForm({ onStartGame }: PlayerFormProps) {
     }
 
     // Save current valid players for quick start
-    localStorage.setItem("lastGamePlayers", JSON.stringify(validPlayers));
+    saveToLocalStorage("lastGamePlayers", validPlayers);
     setHasLastGame(true);
     onStartGame(validPlayers);
   };
 
   const handleQuickStart = () => {
-    const storedData = localStorage.getItem("lastGamePlayers");
-    if (storedData) {
-      try {
-        const lastPlayers = JSON.parse(storedData);
-        if (Array.isArray(lastPlayers) && lastPlayers.length) {
-          onStartGame(lastPlayers);
-        } else {
-          setError("Kein gespeichertes Spiel gefunden");
-        }
-      } catch (error) {
-        setError("Fehler beim Laden des gespeicherten Spiels");
-      }
+    const { ok, result } = loadFromLocalStorage(
+      "lastGamePlayers",
+      lastGamePlayersSchema,
+    );
+    if (ok && result) {
+      onStartGame(result);
     } else {
       setError("Kein gespeichertes Spiel gefunden");
     }

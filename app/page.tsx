@@ -1,10 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { z } from "zod";
+import { saveToLocalStorage, loadFromLocalStorage } from "@/lib/local-storage";
 import PlayerForm from "@/components/player-form";
 import GameBoard from "@/components/game-board";
 import GameOver from "@/components/game-over";
 import PlayerStats from "@/components/player-stats";
+
+const statsSchema = z.record(z.string(), z.number());
 
 export default function Scorekeeper() {
   const [players, setPlayers] = useState<string[]>([]);
@@ -15,8 +19,8 @@ export default function Scorekeeper() {
 
   // Load past scores on initial render
   useEffect(() => {
-    const storedStats = localStorage.getItem("wuerfelblock-stats");
-    if (storedStats) {
+    const { ok } = loadFromLocalStorage("wuerfelblock-stats", statsSchema);
+    if (ok) {
       setShowStats(true);
     }
   }, []);
@@ -51,15 +55,17 @@ export default function Scorekeeper() {
     setGameStarted(false);
 
     // Save scores to local storage
-    // TODO: abstract storage access out
-    const storedStats = localStorage.getItem("wuerfelblock-stats");
-    const stats = storedStats ? JSON.parse(storedStats) : {};
+    const { ok, result } = loadFromLocalStorage(
+      "wuerfelblock-stats",
+      statsSchema,
+    );
+    const stats = ok && result ? result : {};
 
     Object.entries(scores).forEach(([player, score]) => {
       stats[player] = score;
     });
 
-    localStorage.setItem("wuerfelblock-stats", JSON.stringify(stats));
+    saveToLocalStorage("wuerfelblock-stats", stats);
   };
 
   const startNewGame = () => {

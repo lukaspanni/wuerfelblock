@@ -49,13 +49,13 @@ export default function PlayerForm({ onStartGame }: PlayerFormProps) {
   };
 
   return (
-    <div className="animate-fadeIn rounded-lg bg-white p-6 shadow-md dark:bg-gray-800">
+    <div className="animate-fadeIn rounded-lg p-6 shadow-md">
       <h2 className="mb-4 text-center text-2xl font-bold">Neues Spiel</h2>
 
       {error && (
-        <div className="mb-4 rounded-md bg-red-100 p-2 text-sm text-red-700">
+        <span className="bg-destructive text-destructive-foreground mb-4 block rounded-md p-2 text-sm">
           {error}
-        </div>
+        </span>
       )}
 
       <form onSubmit={handleSubmit}>
@@ -100,7 +100,7 @@ export default function PlayerForm({ onStartGame }: PlayerFormProps) {
             Spieler Hinzufügen
           </Button>
 
-          <Button type="submit" className="w-full">
+          <Button type="submit" className="w-full" variant="default">
             Spiel Starten
           </Button>
         </div>

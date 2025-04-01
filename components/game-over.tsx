@@ -46,9 +46,7 @@ export default function GameOver({ scores, onNewGame }: GameOverProps) {
       <h2 className="mb-6 text-center text-2xl font-bold">Spiel Vorbei!</h2>
 
       <div className="mb-8">
-        <h3 className="mb-4 text-center text-xl font-semibold">
-          Endstand
-        </h3>
+        <h3 className="mb-4 text-center text-xl font-semibold">Endstand</h3>
 
         <div className="space-y-3">
           {rankings.map(({ player, score, rank }) => (

@@ -22,13 +22,13 @@ export default function PlayerStats({ onStartGame }: PlayerStatsProps) {
 
   if (!hasStats) {
     return (
-      <div className="animate-fadeIn rounded-lg bg-white p-6 shadow-md dark:bg-gray-800">
+      <div className="animate-fadeIn bg-background rounded-lg p-6 shadow-md">
         <h2 className="mb-4 text-center text-2xl font-bold">
           Willkommen beim Wuerfelblock!
         </h2>
         <p className="mb-6 text-center text-gray-600 dark:text-gray-400">
-          Keine vorherigen Spiele gefunden. Starte ein neues Spiel, um Scores
-          zu verfolgen.
+          Keine vorherigen Spiele gefunden. Starte ein neues Spiel, um Scores zu
+          verfolgen.
         </p>
         <Button onClick={onStartGame} className="w-full">
           Neues Spiel Starten
@@ -38,7 +38,7 @@ export default function PlayerStats({ onStartGame }: PlayerStatsProps) {
   }
 
   return (
-    <div className="animate-fadeIn rounded-lg bg-white p-6 shadow-md dark:bg-gray-800">
+    <div className="animate-fadeIn bg-card dark:bg-card-dark rounded-lg p-6 shadow-md">
       <h2 className="mb-4 text-center text-2xl font-bold">Vorherige Scores</h2>
 
       <div className="mb-6">
@@ -46,10 +46,10 @@ export default function PlayerStats({ onStartGame }: PlayerStatsProps) {
           <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
             <thead className="bg-gray-50 dark:bg-gray-700">
               <tr>
-                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-300">
+                <th className="px-4 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-300">
                   Spieler
                 </th>
-                <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-300">
+                <th className="px-4 py-3 text-right text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-300">
                   Letzter Score
                 </th>
               </tr>

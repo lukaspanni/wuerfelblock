@@ -314,14 +314,14 @@ export default function GameBoard({ players, onGameOver }: GameBoardProps) {
         type="number"
         value={inputValue}
         onChange={(e) => setInputValue(e.target.value)}
-        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+        className="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex h-10 w-full rounded-md border px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50"
         placeholder="Score eingeben"
       />
     );
   };
 
   return (
-    <div className="animate-fadeIn rounded-lg bg-white p-4 shadow-md dark:bg-gray-800">
+    <div className="animate-fadeIn bg-background rounded-lg p-4 shadow-md">
       <div className="mb-4">
         <h2 className="text-center text-xl font-bold">
           Aktueller Spieler:{" "}
@@ -330,14 +330,14 @@ export default function GameBoard({ players, onGameOver }: GameBoardProps) {
       </div>
 
       {currentCategory ? (
-        <div className="mb-6 rounded-lg bg-gray-100 p-4 dark:bg-gray-700">
+        <div className="bg-background mb-6 rounded-lg p-4">
           <h3 className="mb-2 text-lg font-medium">
             Gib den Score ein für{" "}
             {categories.find((c) => c.id === currentCategory)?.name}
           </h3>
 
           {error && (
-            <div className="mb-3 rounded-md bg-red-100 p-2 text-sm text-red-700">
+            <div className="bg-destructive text-destructive-foreground mb-3 rounded-md p-2 text-sm">
               {error}
             </div>
           )}
@@ -349,7 +349,7 @@ export default function GameBoard({ players, onGameOver }: GameBoardProps) {
             <Button onClick={handleScoreSubmit}>Absenden</Button>
           </div>
 
-          <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+          <p className="text-muted dark mt-2 text-sm">
             {getValidationMessage(
               categories.find((c) => c.id === currentCategory)!,
             )}

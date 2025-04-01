@@ -21,6 +21,23 @@ export default function Scorekeeper() {
     }
   }, []);
 
+  // Warn if leaving while game is running
+  useEffect(() => {
+    if (!gameStarted) return;
+    const abortController = new AbortController();
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload, {
+      signal: abortController.signal,
+    });
+
+    return () => {
+      abortController.abort();
+    };
+  }, [gameStarted]);
+
   const startGame = (playerNames: string[]) => {
     setPlayers(playerNames);
     setGameStarted(true);

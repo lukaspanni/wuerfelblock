@@ -2,7 +2,7 @@
 
 import type React from "react";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,6 +15,21 @@ interface PlayerFormProps {
 export default function PlayerForm({ onStartGame }: PlayerFormProps) {
   const [players, setPlayers] = useState<string[]>([""]);
   const [error, setError] = useState("");
+  const [hasLastGame, setHasLastGame] = useState(false);
+
+  useEffect(() => {
+    const storedData = localStorage.getItem("lastGamePlayers");
+    if (storedData) {
+      try {
+        const lastPlayers = JSON.parse(storedData);
+        setHasLastGame(Array.isArray(lastPlayers) && lastPlayers.length > 0);
+      } catch (error) {
+        setHasLastGame(false);
+      }
+    } else {
+      setHasLastGame(false);
+    }
+  }, []);
 
   const addPlayer = () => {
     setPlayers([...players, ""]);
@@ -45,7 +60,28 @@ export default function PlayerForm({ onStartGame }: PlayerFormProps) {
       return;
     }
 
+    // Save current valid players for quick start
+    localStorage.setItem("lastGamePlayers", JSON.stringify(validPlayers));
+    setHasLastGame(true);
     onStartGame(validPlayers);
+  };
+
+  const handleQuickStart = () => {
+    const storedData = localStorage.getItem("lastGamePlayers");
+    if (storedData) {
+      try {
+        const lastPlayers = JSON.parse(storedData);
+        if (Array.isArray(lastPlayers) && lastPlayers.length) {
+          onStartGame(lastPlayers);
+        } else {
+          setError("Kein gespeichertes Spiel gefunden");
+        }
+      } catch (error) {
+        setError("Fehler beim Laden des gespeicherten Spiels");
+      }
+    } else {
+      setError("Kein gespeichertes Spiel gefunden");
+    }
   };
 
   return (
@@ -103,6 +139,16 @@ export default function PlayerForm({ onStartGame }: PlayerFormProps) {
           <Button type="submit" className="w-full" variant="default">
             Spiel Starten
           </Button>
+          {hasLastGame && (
+            <Button
+              type="button"
+              onClick={handleQuickStart}
+              className="bg-accent text-accent-foreground w-full"
+              variant="default"
+            >
+              Schnellstart letztes Spiel
+            </Button>
+          )}
         </div>
       </form>
     </div>

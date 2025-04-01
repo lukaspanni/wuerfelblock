@@ -43,11 +43,11 @@ export default function GameOver({ scores, onNewGame }: GameOverProps) {
 
   return (
     <div className="animate-fadeIn rounded-lg bg-white p-6 shadow-md dark:bg-gray-800">
-      <h2 className="mb-6 text-center text-2xl font-bold">Game Over!</h2>
+      <h2 className="mb-6 text-center text-2xl font-bold">Spiel Vorbei!</h2>
 
       <div className="mb-8">
         <h3 className="mb-4 text-center text-xl font-semibold">
-          Final Rankings
+          Endstand
         </h3>
 
         <div className="space-y-3">
@@ -83,7 +83,7 @@ export default function GameOver({ scores, onNewGame }: GameOverProps) {
       </div>
 
       <Button onClick={onNewGame} className="w-full">
-        Start New Game
+        Neues Spiel Starten
       </Button>
     </div>
   );

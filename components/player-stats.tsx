@@ -24,13 +24,14 @@ export default function PlayerStats({ onStartGame }: PlayerStatsProps) {
     return (
       <div className="animate-fadeIn rounded-lg bg-white p-6 shadow-md dark:bg-gray-800">
         <h2 className="mb-4 text-center text-2xl font-bold">
-          Welcome to Wuerfelblock!
+          Willkommen beim Wuerfelblock!
         </h2>
         <p className="mb-6 text-center text-gray-600 dark:text-gray-400">
-          No previous games found. Start a new game to begin tracking scores.
+          Keine vorherigen Spiele gefunden. Starte ein neues Spiel, um Scores
+          zu verfolgen.
         </p>
         <Button onClick={onStartGame} className="w-full">
-          Start New Game
+          Neues Spiel Starten
         </Button>
       </div>
     );
@@ -38,7 +39,7 @@ export default function PlayerStats({ onStartGame }: PlayerStatsProps) {
 
   return (
     <div className="animate-fadeIn rounded-lg bg-white p-6 shadow-md dark:bg-gray-800">
-      <h2 className="mb-4 text-center text-2xl font-bold">Previous Scores</h2>
+      <h2 className="mb-4 text-center text-2xl font-bold">Vorherige Scores</h2>
 
       <div className="mb-6">
         <div className="overflow-hidden rounded-lg border">
@@ -46,10 +47,10 @@ export default function PlayerStats({ onStartGame }: PlayerStatsProps) {
             <thead className="bg-gray-50 dark:bg-gray-700">
               <tr>
                 <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-300">
-                  Player
+                  Spieler
                 </th>
                 <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-300">
-                  Last Score
+                  Letzter Score
                 </th>
               </tr>
             </thead>
@@ -69,7 +70,7 @@ export default function PlayerStats({ onStartGame }: PlayerStatsProps) {
       </div>
 
       <Button onClick={onStartGame} className="w-full">
-        Start New Game
+        Neues Spiel Starten
       </Button>
     </div>
   );

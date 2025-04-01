@@ -188,7 +188,7 @@ export default function GameBoard({ players, onGameOver }: GameBoardProps) {
 
     // Check if this category is already filled for the current player
     if (scores[currentPlayer][category] !== null) {
-      setError("This category is already filled");
+      setError("Diese Kategorie ist bereits ausgefüllt");
       return;
     }
 
@@ -208,7 +208,7 @@ export default function GameBoard({ players, onGameOver }: GameBoardProps) {
     const value = Number.parseInt(inputValue);
 
     if (isNaN(value)) {
-      setError("Please enter a valid number");
+      setError("Bitte gib eine gültige Zahl ein");
       return;
     }
 
@@ -315,7 +315,7 @@ export default function GameBoard({ players, onGameOver }: GameBoardProps) {
         value={inputValue}
         onChange={(e) => setInputValue(e.target.value)}
         className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-        placeholder="Enter score"
+        placeholder="Score eingeben"
       />
     );
   };
@@ -324,7 +324,7 @@ export default function GameBoard({ players, onGameOver }: GameBoardProps) {
     <div className="animate-fadeIn rounded-lg bg-white p-4 shadow-md dark:bg-gray-800">
       <div className="mb-4">
         <h2 className="text-center text-xl font-bold">
-          Current Player:{" "}
+          Aktueller Spieler:{" "}
           <span className="text-primary">{players[currentPlayerIndex]}</span>
         </h2>
       </div>
@@ -332,7 +332,7 @@ export default function GameBoard({ players, onGameOver }: GameBoardProps) {
       {currentCategory ? (
         <div className="mb-6 rounded-lg bg-gray-100 p-4 dark:bg-gray-700">
           <h3 className="mb-2 text-lg font-medium">
-            Enter score for{" "}
+            Gib den Score ein für{" "}
             {categories.find((c) => c.id === currentCategory)?.name}
           </h3>
 
@@ -346,7 +346,7 @@ export default function GameBoard({ players, onGameOver }: GameBoardProps) {
             {renderScoreInput(
               categories.find((c) => c.id === currentCategory)!,
             )}
-            <Button onClick={handleScoreSubmit}>Submit</Button>
+            <Button onClick={handleScoreSubmit}>Absenden</Button>
           </div>
 
           <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
@@ -357,7 +357,7 @@ export default function GameBoard({ players, onGameOver }: GameBoardProps) {
         </div>
       ) : (
         <div className="mb-4 text-center text-sm">
-          Select a category to score
+          Wähle eine Kategorie zum Bewerten aus
         </div>
       )}
 

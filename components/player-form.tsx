@@ -41,7 +41,7 @@ export default function PlayerForm({ onStartGame }: PlayerFormProps) {
     const validPlayers = players.filter((name) => name.trim() !== "");
 
     if (validPlayers.length === 0) {
-      setError("Please enter at least one player name");
+      setError("Bitte geben Sie mindestens einen Spielernamen ein");
       return;
     }
 
@@ -50,7 +50,7 @@ export default function PlayerForm({ onStartGame }: PlayerFormProps) {
 
   return (
     <div className="animate-fadeIn rounded-lg bg-white p-6 shadow-md dark:bg-gray-800">
-      <h2 className="mb-4 text-center text-2xl font-bold">New Game</h2>
+      <h2 className="mb-4 text-center text-2xl font-bold">Neues Spiel</h2>
 
       {error && (
         <div className="mb-4 rounded-md bg-red-100 p-2 text-sm text-red-700">
@@ -64,11 +64,11 @@ export default function PlayerForm({ onStartGame }: PlayerFormProps) {
             <div key={index} className="flex items-center gap-2">
               <div className="flex-1">
                 <Label htmlFor={`player-${index}`} className="sr-only">
-                  Player {index + 1}
+                  Spieler {index + 1}
                 </Label>
                 <Input
                   id={`player-${index}`}
-                  placeholder={`Player ${index + 1} name`}
+                  placeholder={`Spieler ${index + 1} Name`}
                   value={player}
                   onChange={(e) => updatePlayer(index, e.target.value)}
                   className="w-full"
@@ -83,7 +83,7 @@ export default function PlayerForm({ onStartGame }: PlayerFormProps) {
                   className="h-8 w-8"
                 >
                   <X className="h-4 w-4" />
-                  <span className="sr-only">Remove player</span>
+                  <span className="sr-only">Spieler entfernen</span>
                 </Button>
               )}
             </div>
@@ -97,11 +97,11 @@ export default function PlayerForm({ onStartGame }: PlayerFormProps) {
             onClick={addPlayer}
             className="w-full"
           >
-            Add Player
+            Spieler Hinzufügen
           </Button>
 
           <Button type="submit" className="w-full">
-            Start Game
+            Spiel Starten
           </Button>
         </div>
       </form>

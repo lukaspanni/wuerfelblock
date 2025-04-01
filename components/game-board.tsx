@@ -5,6 +5,14 @@ import { Button } from "@/components/ui/button";
 import ScoreCard from "@/components/score-card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
+import { useMobile } from "@/hooks/use-mobile";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 
 type Section = "upper" | "lower";
 
@@ -165,6 +173,8 @@ export default function GameBoard({ players, onGameOver }: GameBoardProps) {
   const [inputValue, setInputValue] = useState("");
   const [currentCategory, setCurrentCategory] = useState<string | null>(null);
   const [totals, setTotals] = useState<Record<string, number>>({});
+  const isMobile = useMobile();
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   // Initialize scores
   useEffect(() => {
@@ -195,6 +205,10 @@ export default function GameBoard({ players, onGameOver }: GameBoardProps) {
     setCurrentCategory(category);
     setInputValue("");
     setError("");
+
+    if (isMobile) {
+      setDialogOpen(true);
+    }
   };
 
   const handleScoreSubmit = () => {
@@ -241,6 +255,10 @@ export default function GameBoard({ players, onGameOver }: GameBoardProps) {
     setCurrentCategory(null);
     setInputValue("");
     setError("");
+
+    if (isMobile) {
+      setDialogOpen(false);
+    }
 
     // Check if game is over
     const isGameOver = players.every((player) =>
@@ -329,7 +347,7 @@ export default function GameBoard({ players, onGameOver }: GameBoardProps) {
         </h2>
       </div>
 
-      {currentCategory ? (
+      {!isMobile && currentCategory ? (
         <div className="bg-background mb-6 rounded-lg p-4">
           <h3 className="mb-2 text-lg font-medium">
             Gib den Score ein für{" "}
@@ -356,9 +374,40 @@ export default function GameBoard({ players, onGameOver }: GameBoardProps) {
           </p>
         </div>
       ) : (
-        <div className="mb-4 text-center text-sm">
-          Wähle eine Kategorie zum Bewerten aus
-        </div>
+        !isMobile && (
+          <div className="mb-4 text-center text-sm">
+            Wähle eine Kategorie zum Bewerten aus
+          </div>
+        )
+      )}
+
+      {isMobile && currentCategory && (
+        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>
+                Gib den Score ein für{" "}
+                {categories.find((c) => c.id === currentCategory)?.name}
+              </DialogTitle>
+              <DialogDescription>
+                {getValidationMessage(
+                  categories.find((c) => c.id === currentCategory)!,
+                )}
+              </DialogDescription>
+            </DialogHeader>
+            {error && (
+              <div className="bg-destructive text-destructive-foreground mb-3 rounded-md p-2 text-sm">
+                {error}
+              </div>
+            )}
+            <div className="flex gap-2">
+              {renderScoreInput(
+                categories.find((c) => c.id === currentCategory)!,
+              )}
+              <Button onClick={handleScoreSubmit}>Absenden</Button>
+            </div>
+          </DialogContent>
+        </Dialog>
       )}
 
       <ScoreCard

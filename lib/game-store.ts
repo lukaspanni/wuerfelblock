@@ -1,5 +1,4 @@
 import { createStore } from "zustand/vanilla";
-import { useState, useEffect } from "react";
 
 export type GameState =
   | "landing-page"

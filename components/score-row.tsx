@@ -1,4 +1,4 @@
-import { Category } from "./game-board";
+import type { Category } from "./game-board";
 import { ScoreCell } from "./score-cell";
 
 interface ScoreRowProps {

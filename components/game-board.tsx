@@ -13,7 +13,6 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { useGameStore } from "@/providers/game-store-provider";
-import { Input } from "./ui/input";
 import ScoreInput from "@/components/score-input";
 
 type Section = "upper" | "lower";

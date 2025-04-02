@@ -2,7 +2,7 @@ import React from "react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Input } from "./ui/input";
-import { Category } from "./game-board";
+import type { Category } from "./game-board";
 
 interface ScoreInputProps {
   category: Category;

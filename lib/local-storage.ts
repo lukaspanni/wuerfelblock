@@ -1,4 +1,4 @@
-import { z, ZodTypeAny } from "zod";
+import type { z, ZodTypeAny } from "zod";
 import { errorResult, okResult, type Result } from "@/lib/result";
 
 export const saveToLocalStorage = <T>(key: string, data: T) => {

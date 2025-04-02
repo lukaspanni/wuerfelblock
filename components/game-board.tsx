@@ -82,7 +82,6 @@ const categories: Category[] = [
     type: "number",
     validate: (val: number) => val >= 0 && val <= 30 && val % 6 === 0,
   },
-  // Lower section
   {
     id: "threeOfAKind",
     name: "Dreierpasch",

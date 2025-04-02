@@ -17,7 +17,7 @@ interface PlayerFormProps {
 }
 
 export default function PlayerForm({ onStartGame }: PlayerFormProps) {
-  const [players, setPlayers] = useState<string[]>([""]);
+  const [players, setPlayers] = useState<string[]>(["", "", ""]);
   const [error, setError] = useState("");
   const [hasLastGame, setHasLastGame] = useState(false);
 

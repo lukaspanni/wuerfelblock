@@ -79,7 +79,7 @@ export default function Scorekeeper() {
 
   return (
     <main className="bg-background min-h-screen p-4">
-      <div className="mx-auto max-w-md">
+      <div className="mx-auto 2xl:max-w-7xl">
         <h1 className="text-primary mb-6 text-center text-3xl font-bold">
           Wuerfelblock
         </h1>

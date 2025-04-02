@@ -8,7 +8,7 @@ import { StartGameButton } from "@/components/start-game-button";
 import { Card, CardFooter } from "@/components/ui/card";
 import { WelcomeComponent } from "@/components/welcome";
 import { loadFromLocalStorage, saveToLocalStorage } from "@/lib/local-storage";
-import { useGameStore } from "@/lib/game-store";
+import { useGameStore } from "@/providers/game-store-provider";
 import { useEffect } from "react";
 import { z } from "zod";
 
@@ -23,7 +23,7 @@ export default function Scorekeeper() {
     startGame,
     finalScores,
     resetGame,
-  } = useGameStore();
+  } = useGameStore((state) => state);
 
   useEffect(() => {
     // Load past scores on initial render

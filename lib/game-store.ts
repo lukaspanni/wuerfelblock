@@ -1,4 +1,5 @@
-import { create } from "zustand";
+import { createStore } from "zustand/vanilla";
+import { useState, useEffect } from "react";
 
 export type GameState =
   | "landing-page"
@@ -7,131 +8,129 @@ export type GameState =
   | "game-running"
   | "game-over";
 
-interface GameStore {
-  // Game state management
+export type GameStoreState = {
   gameState: GameState;
-  setGameState: (state: GameState) => void;
-
-  // Player management
   players: string[];
-  setPlayers: (players: string[]) => void;
-
-  // Scoring system
   scores: Record<string, Record<string, number | null>>;
+  stats: Record<string, number>;
+  currentPlayerIndex: number;
+  finalScores: Record<string, number>;
+};
+
+export type GameStateActions = {
+  setGameState: (state: GameState) => void;
+  setPlayers: (players: string[]) => void;
   setScores: (scores: Record<string, Record<string, number | null>>) => void;
   updatePlayerScore: (
     player: string,
     category: string,
     score: number,
   ) => Record<string, Record<string, number | null>>;
-
-  // Statistics
-  stats: Record<string, number>;
   setStats: (stats: Record<string, number>) => void;
   updateStats: (newScores: Record<string, number>) => void;
-
-  // Game progression
-  currentPlayerIndex: number;
   setCurrentPlayerIndex: (index: number) => void;
   nextPlayer: () => void;
-
-  // Final scores
-  finalScores: Record<string, number>;
   setFinalScores: (scores: Record<string, number>) => void;
-
-  // Game flow controls
   startGame: (playerNames: string[]) => void;
   endGame: (scores: Record<string, number>) => void;
   resetGame: () => void;
-}
+};
 
-export const useGameStore = create<GameStore>()((set, get) => ({
-  // Initial state
+export type GameStore = GameStoreState & GameStateActions;
+
+export const initialGameState: GameStoreState = {
   gameState: "landing-page",
   players: [],
   scores: {},
   stats: {},
   currentPlayerIndex: 0,
   finalScores: {},
+};
 
-  // State setters
-  setGameState: (state) => set({ gameState: state }),
-  setPlayers: (players) => set({ players }),
-  setScores: (scores) => set({ scores }),
-  setStats: (stats) => set({ stats }),
-  setCurrentPlayerIndex: (index) => set({ currentPlayerIndex: index }),
-  setFinalScores: (finalScores) => set({ finalScores }),
+// Create the store outside of components
+export const createGameStore = (initState: GameStoreState = initialGameState) =>
+  createStore<GameStore>()((set, get) => ({
+    ...initState,
 
-  // Complex actions
-  updatePlayerScore: (player, category, value) => {
-    const currentScores = { ...get().scores };
+    // State setters
+    setGameState: (state) => set({ gameState: state }),
+    setPlayers: (players) => set({ players }),
+    setScores: (scores) => set({ scores }),
+    setStats: (stats) => set({ stats }),
+    setCurrentPlayerIndex: (index) => set({ currentPlayerIndex: index }),
+    setFinalScores: (finalScores) => set({ finalScores }),
 
-    if (!currentScores[player]) {
-      currentScores[player] = {};
-    }
+    // Complex actions
+    updatePlayerScore: (player, category, value) => {
+      const currentScores = { ...get().scores };
 
-    currentScores[player][category] = value;
+      if (!currentScores[player]) {
+        currentScores[player] = {};
+      }
 
-    set({ scores: currentScores });
+      currentScores[player][category] = value;
 
-    // Return the updated scores
-    return currentScores;
-  },
+      set({ scores: currentScores });
 
-  updateStats: (newScores) => {
-    set((state) => {
-      const updatedStats = { ...state.stats };
-      Object.entries(newScores).forEach(([player, score]) => {
-        updatedStats[player] = score;
+      // Return the updated scores
+      return currentScores;
+    },
+
+    updateStats: (newScores) => {
+      set((state) => {
+        const updatedStats = { ...state.stats };
+        Object.entries(newScores).forEach(([player, score]) => {
+          updatedStats[player] = score;
+        });
+        return { stats: updatedStats };
       });
-      return { stats: updatedStats };
-    });
-  },
+    },
 
-  nextPlayer: () => {
-    set((state) => ({
-      currentPlayerIndex: (state.currentPlayerIndex + 1) % state.players.length,
-    }));
-  },
+    nextPlayer: () => {
+      set((state) => ({
+        currentPlayerIndex:
+          (state.currentPlayerIndex + 1) % state.players.length,
+      }));
+    },
 
-  // Game flow methods
-  startGame: (playerNames) => {
-    // Initialize scores structure
-    const initialScores: Record<string, Record<string, number | null>> = {};
-    playerNames.forEach((player) => {
-      initialScores[player] = {};
-    });
-
-    set({
-      players: playerNames,
-      scores: initialScores,
-      gameState: "game-running",
-      currentPlayerIndex: 0,
-    });
-  },
-
-  endGame: (scores) => {
-    set((state) => {
-      // Update statistics
-      const newStats = { ...state.stats };
-      Object.entries(scores).forEach(([player, score]) => {
-        newStats[player] = score;
+    // Game flow methods
+    startGame: (playerNames) => {
+      // Initialize scores structure
+      const initialScores: Record<string, Record<string, number | null>> = {};
+      playerNames.forEach((player) => {
+        initialScores[player] = {};
       });
 
-      return {
-        finalScores: scores,
-        gameState: "game-over",
-        stats: newStats,
-      };
-    });
-  },
+      set({
+        players: playerNames,
+        scores: initialScores,
+        gameState: "game-running",
+        currentPlayerIndex: 0,
+      });
+    },
 
-  resetGame: () => {
-    set({
-      gameState: "history-stats",
-      currentPlayerIndex: 0,
-      scores: {},
-      finalScores: {},
-    });
-  },
-}));
+    endGame: (scores) => {
+      set((state) => {
+        // Update statistics
+        const newStats = { ...state.stats };
+        Object.entries(scores).forEach(([player, score]) => {
+          newStats[player] = score;
+        });
+
+        return {
+          finalScores: scores,
+          gameState: "game-over",
+          stats: newStats,
+        };
+      });
+    },
+
+    resetGame: () => {
+      set({
+        gameState: "history-stats",
+        currentPlayerIndex: 0,
+        scores: {},
+        finalScores: {},
+      });
+    },
+  }));

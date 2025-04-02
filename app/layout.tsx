@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { GameStoreProvider } from "@/providers/game-store-provider";
 
 export const metadata: Metadata = {
   title: "Wuerfelblock v2",
   description: "",
-  generator: "v0.dev",
 };
 
 export default function RootLayout({
@@ -14,7 +14,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="de">
-      <body>{children}</body>
+      <body>
+        <GameStoreProvider>{children}</GameStoreProvider>
+      </body>
     </html>
   );
 }

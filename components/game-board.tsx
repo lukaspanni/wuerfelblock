@@ -6,7 +6,6 @@ import ScoreCard from "@/components/score-card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { useMobile } from "@/hooks/use-mobile";
-import { useGameStore } from "@/lib/game-store";
 import {
   Dialog,
   DialogContent,
@@ -14,6 +13,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
+import { useGameStore } from "@/providers/game-store-provider";
 
 type Section = "upper" | "lower";
 
@@ -167,7 +167,7 @@ export default function GameBoard() {
     setScores,
     updatePlayerScore,
     endGame,
-  } = useGameStore();
+  } = useGameStore((state) => state);
 
   const [error, setError] = useState("");
   const [inputValue, setInputValue] = useState("");

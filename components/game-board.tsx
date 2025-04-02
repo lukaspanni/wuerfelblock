@@ -17,7 +17,7 @@ import { useGameStore } from "@/providers/game-store-provider";
 
 type Section = "upper" | "lower";
 
-interface Category {
+export type Category = {
   id: string;
   name: string;
   max: number;
@@ -25,7 +25,7 @@ interface Category {
   validate: (val: number) => boolean;
   type: "number" | "special";
   points?: number;
-}
+};
 
 // Define the scoring categories and their validation rules
 const categories: Category[] = [
@@ -232,8 +232,6 @@ export default function GameBoard() {
       );
       return;
     }
-
-    console.log("Submitting score:", { currentPlayer, currentCategory, value });
 
     // Update the store with the new score and get the updated scores back
     const updatedScores = updatePlayerScore(

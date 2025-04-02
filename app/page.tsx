@@ -8,18 +8,22 @@ import { StartGameButton } from "@/components/start-game-button";
 import { Card, CardFooter } from "@/components/ui/card";
 import { WelcomeComponent } from "@/components/welcome";
 import { loadFromLocalStorage, saveToLocalStorage } from "@/lib/local-storage";
-import { useEffect, useState } from "react";
+import { useGameStore } from "@/lib/game-store";
+import { useEffect } from "react";
 import { z } from "zod";
 
 const statsSchema = z.record(z.string(), z.number());
 
 export default function Scorekeeper() {
-  const [players, setPlayers] = useState<string[]>([]);
-  const [gameStarted, setGameStarted] = useState(false);
-  const [gameOver, setGameOver] = useState(false);
-  const [finalScores, setFinalScores] = useState<Record<string, number>>({});
-  const [showStats, setShowStats] = useState(true);
-  const [stats, setStats] = useState<Record<string, number>>({});
+  const {
+    gameState,
+    setGameState,
+    setStats,
+    stats,
+    startGame,
+    finalScores,
+    resetGame,
+  } = useGameStore();
 
   useEffect(() => {
     // Load past scores on initial render
@@ -29,13 +33,13 @@ export default function Scorekeeper() {
     );
     if (ok) {
       setStats(result);
-      setShowStats(true);
+      setGameState("history-stats");
     }
-  }, []);
+  }, [setStats, setGameState]);
 
   // Warn if leaving while game is running
   useEffect(() => {
-    if (!gameStarted) return;
+    if (gameState !== "game-running") return;
     const abortController = new AbortController();
     const handleBeforeUnload = (event: BeforeUnloadEvent) => {
       event.preventDefault();
@@ -48,33 +52,17 @@ export default function Scorekeeper() {
     return () => {
       abortController.abort();
     };
-  }, [gameStarted]);
+  }, [gameState]);
 
-  const startGame = (playerNames: string[]) => {
-    setPlayers(playerNames);
-    setGameStarted(true);
-    setGameOver(false);
-    setShowStats(false);
-  };
+  // Save stats to localStorage when they change
+  useEffect(() => {
+    if (Object.keys(stats).length > 0) {
+      saveToLocalStorage("wuerfelblock-stats", stats);
+    }
+  }, [stats]);
 
-  const endGame = (scores: Record<string, number>) => {
-    setFinalScores(scores);
-    setGameOver(true);
-    setGameStarted(false);
-
-    // Update both local storage and state
-    const newStats = { ...stats };
-    Object.entries(scores).forEach(([player, score]) => {
-      newStats[player] = score;
-    });
-
-    setStats(newStats);
-    saveToLocalStorage("wuerfelblock-stats", newStats);
-  };
-
-  const startNewGame = () => {
-    setGameOver(false);
-    setShowStats(true);
+  const handleStartGameClick = () => {
+    setGameState("game-init");
   };
 
   return (
@@ -84,26 +72,24 @@ export default function Scorekeeper() {
           Wuerfelblock
         </h1>
 
-        {showStats && (
+        {(gameState === "landing-page" || gameState === "history-stats") && (
           <Card>
-            {Object.keys(stats).length > 0 ? (
+            {(gameState === "history-stats" && (
               <PlayerStats stats={stats} />
-            ) : (
-              <WelcomeComponent />
-            )}
+            )) || <WelcomeComponent />}
             <CardFooter>
-              <StartGameButton onStartGame={() => setShowStats(false)} />
+              <StartGameButton onStartGame={handleStartGameClick} />
             </CardFooter>
           </Card>
         )}
 
-        {!gameStarted && !gameOver && !showStats && (
-          <PlayerForm onStartGame={startGame} />
+        {gameState === "game-init" && <PlayerForm onStartGame={startGame} />}
+
+        {gameState === "game-running" && <GameBoard />}
+
+        {gameState === "game-over" && (
+          <GameOver scores={finalScores} onNewGame={resetGame} />
         )}
-
-        {gameStarted && <GameBoard players={players} onGameOver={endGame} />}
-
-        {gameOver && <GameOver scores={finalScores} onNewGame={startNewGame} />}
       </div>
     </main>
   );

@@ -6,6 +6,7 @@ import ScoreCard from "@/components/score-card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { useMobile } from "@/hooks/use-mobile";
+import { useGameStore } from "@/lib/game-store";
 import {
   Dialog,
   DialogContent,
@@ -26,14 +27,8 @@ interface Category {
   points?: number;
 }
 
-interface GameBoardProps {
-  players: string[];
-  onGameOver: (scores: Record<string, number>) => void;
-}
-
 // Define the scoring categories and their validation rules
 const categories: Category[] = [
-  // Upper section
   {
     id: "ones",
     name: "Einser",
@@ -163,11 +158,17 @@ const calculateLowerSectionTotal = (
     .reduce((sum, category) => sum + (playerScores[category.id] || 0), 0);
 };
 
-export default function GameBoard({ players, onGameOver }: GameBoardProps) {
-  const [currentPlayerIndex, setCurrentPlayerIndex] = useState(0);
-  const [scores, setScores] = useState<
-    Record<string, Record<string, number | null>>
-  >({});
+export default function GameBoard() {
+  const {
+    players,
+    currentPlayerIndex,
+    nextPlayer,
+    scores,
+    setScores,
+    updatePlayerScore,
+    endGame,
+  } = useGameStore();
+
   const [error, setError] = useState("");
   const [inputValue, setInputValue] = useState("");
   const [currentCategory, setCurrentCategory] = useState<string | null>(null);
@@ -190,13 +191,13 @@ export default function GameBoard({ players, onGameOver }: GameBoardProps) {
 
     setScores(initialScores);
     setTotals(initialTotals);
-  }, [players]);
+  }, [players, setScores]);
 
   const handleScoreSelect = (category: string) => {
     const currentPlayer = players[currentPlayerIndex];
 
     // Check if this category is already filled for the current player
-    if (scores[currentPlayer][category] !== null) {
+    if (scores[currentPlayer]?.[category] !== null) {
       setError("Diese Kategorie ist bereits ausgefüllt");
       return;
     }
@@ -232,25 +233,28 @@ export default function GameBoard({ players, onGameOver }: GameBoardProps) {
       return;
     }
 
-    // Update scores
-    const newScores = { ...scores };
-    newScores[currentPlayer][currentCategory] = value;
+    console.log("Submitting score:", { currentPlayer, currentCategory, value });
 
-    // Calculate section totals
-    const upperTotal = calculateUpperSectionTotal(newScores[currentPlayer]);
+    // Update the store with the new score and get the updated scores back
+    const updatedScores = updatePlayerScore(
+      currentPlayer,
+      currentCategory,
+      value,
+    );
+
+    // Use the updated scores to calculate totals
+    const updatedPlayerScores = updatedScores[currentPlayer];
+    const upperTotal = calculateUpperSectionTotal(updatedPlayerScores);
     const bonus = calculateBonus(upperTotal);
-    const lowerTotal = calculateLowerSectionTotal(newScores[currentPlayer]);
+    const lowerTotal = calculateLowerSectionTotal(updatedPlayerScores);
 
     // Update totals with bonus
     const newTotals = { ...totals };
     newTotals[currentPlayer] = upperTotal + bonus + lowerTotal;
-
-    setScores(newScores);
     setTotals(newTotals);
 
-    // Move to next player or category
-    const nextPlayerIndex = (currentPlayerIndex + 1) % players.length;
-    setCurrentPlayerIndex(nextPlayerIndex);
+    // Move to next player
+    nextPlayer();
     setCurrentCategory(null);
     setInputValue("");
     setError("");
@@ -261,11 +265,13 @@ export default function GameBoard({ players, onGameOver }: GameBoardProps) {
 
     // Check if game is over
     const isGameOver = players.every((player) =>
-      categories.every((category) => scores[player][category.id] !== null),
+      categories.every(
+        (category) => updatedScores[player]?.[category.id] !== null,
+      ),
     );
 
     if (isGameOver) {
-      onGameOver(newTotals);
+      endGame(newTotals);
     }
   };
 
@@ -346,7 +352,7 @@ export default function GameBoard({ players, onGameOver }: GameBoardProps) {
         </h2>
       </div>
 
-      {!isMobile && currentCategory ? (
+      {!isMobile && currentCategory && (
         <div className="bg-background mb-6 rounded-lg p-4">
           <h3 className="mb-2 text-lg font-medium">
             Gib den Score ein für{" "}
@@ -372,12 +378,6 @@ export default function GameBoard({ players, onGameOver }: GameBoardProps) {
             )}
           </p>
         </div>
-      ) : (
-        !isMobile && (
-          <div className="mb-4 text-center text-sm">
-            Wähle eine Kategorie zum Bewerten aus
-          </div>
-        )
       )}
 
       {isMobile && currentCategory && (

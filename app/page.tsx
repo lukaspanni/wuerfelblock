@@ -1,12 +1,15 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { z } from "zod";
-import { saveToLocalStorage, loadFromLocalStorage } from "@/lib/local-storage";
-import PlayerForm from "@/components/player-form";
 import GameBoard from "@/components/game-board";
 import GameOver from "@/components/game-over";
-import PlayerStats from "@/components/player-stats";
+import PlayerForm from "@/components/player-form";
+import { PlayerStats } from "@/components/player-stats";
+import { StartGameButton } from "@/components/start-game-button";
+import { Card, CardFooter } from "@/components/ui/card";
+import { WelcomeComponent } from "@/components/welcome";
+import { loadFromLocalStorage, saveToLocalStorage } from "@/lib/local-storage";
+import { useEffect, useState } from "react";
+import { z } from "zod";
 
 const statsSchema = z.record(z.string(), z.number());
 
@@ -16,11 +19,16 @@ export default function Scorekeeper() {
   const [gameOver, setGameOver] = useState(false);
   const [finalScores, setFinalScores] = useState<Record<string, number>>({});
   const [showStats, setShowStats] = useState(true);
+  const [stats, setStats] = useState<Record<string, number>>({});
 
-  // Load past scores on initial render
   useEffect(() => {
-    const { ok } = loadFromLocalStorage("wuerfelblock-stats", statsSchema);
+    // Load past scores on initial render
+    const { ok, result } = loadFromLocalStorage(
+      "wuerfelblock-stats",
+      statsSchema,
+    );
     if (ok) {
+      setStats(result);
       setShowStats(true);
     }
   }, []);
@@ -54,18 +62,14 @@ export default function Scorekeeper() {
     setGameOver(true);
     setGameStarted(false);
 
-    // Save scores to local storage
-    const { ok, result } = loadFromLocalStorage(
-      "wuerfelblock-stats",
-      statsSchema,
-    );
-    const stats = ok && result ? result : {};
-
+    // Update both local storage and state
+    const newStats = { ...stats };
     Object.entries(scores).forEach(([player, score]) => {
-      stats[player] = score;
+      newStats[player] = score;
     });
 
-    saveToLocalStorage("wuerfelblock-stats", stats);
+    setStats(newStats);
+    saveToLocalStorage("wuerfelblock-stats", newStats);
   };
 
   const startNewGame = () => {
@@ -80,7 +84,18 @@ export default function Scorekeeper() {
           Wuerfelblock
         </h1>
 
-        {showStats && <PlayerStats onStartGame={() => setShowStats(false)} />}
+        {showStats && (
+          <Card>
+            {Object.keys(stats).length > 0 ? (
+              <PlayerStats stats={stats} />
+            ) : (
+              <WelcomeComponent />
+            )}
+            <CardFooter>
+              <StartGameButton onStartGame={() => setShowStats(false)} />
+            </CardFooter>
+          </Card>
+        )}
 
         {!gameStarted && !gameOver && !showStats && (
           <PlayerForm onStartGame={startGame} />

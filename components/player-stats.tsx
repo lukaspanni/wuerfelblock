@@ -1,77 +1,42 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
+import { CardContent, CardHeader, CardTitle } from "./ui/card";
 
 interface PlayerStatsProps {
-  onStartGame: () => void;
+  stats: Record<string, number>;
 }
 
-export default function PlayerStats({ onStartGame }: PlayerStatsProps) {
-  const [stats, setStats] = useState<Record<string, number>>({});
-  const [hasStats, setHasStats] = useState(false);
-
-  useEffect(() => {
-    const storedStats = localStorage.getItem("wuerfelblock-stats");
-    if (storedStats) {
-      // TODO: validate the stored stats
-      setStats(JSON.parse(storedStats));
-      setHasStats(true);
-    }
-  }, []);
-
-  if (!hasStats) {
-    return (
-      <div className="animate-fadeIn bg-background rounded-lg p-6 shadow-md">
-        <h2 className="mb-4 text-center text-2xl font-bold">
-          Willkommen beim Wuerfelblock!
-        </h2>
-        <p className="mb-6 text-center text-gray-600 dark:text-gray-400">
-          Keine vorherigen Spiele gefunden. Starte ein neues Spiel, um Scores zu
-          verfolgen.
-        </p>
-        <Button onClick={onStartGame} className="w-full">
-          Neues Spiel Starten
-        </Button>
-      </div>
-    );
-  }
-
+export const PlayerStats = ({ stats }: PlayerStatsProps) => {
   return (
-    <div className="animate-fadeIn bg-card dark:bg-card-dark rounded-lg p-6 shadow-md">
-      <h2 className="mb-4 text-center text-2xl font-bold">Vorherige Scores</h2>
-
-      <div className="mb-6">
-        <div className="overflow-hidden rounded-lg border">
-          <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-            <thead className="bg-gray-50 dark:bg-gray-700">
-              <tr>
-                <th className="px-4 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-300">
-                  Spieler
-                </th>
-                <th className="px-4 py-3 text-right text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-300">
-                  Letzter Score
-                </th>
+    <>
+      <CardHeader>
+        <CardTitle>Vorherige Scores</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+          <thead className="bg-gray-50 dark:bg-gray-700">
+            <tr>
+              <th className="px-4 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-300">
+                Spieler
+              </th>
+              <th className="px-4 py-3 text-right text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-300">
+                Letzter Score
+              </th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-200 bg-white dark:divide-gray-700 dark:bg-gray-800">
+            {Object.entries(stats).map(([player, score]) => (
+              <tr
+                key={player}
+                className="hover:bg-gray-50 dark:hover:bg-gray-700/50"
+              >
+                <td className="px-4 py-3 text-sm font-medium">{player}</td>
+                <td className="px-4 py-3 text-right text-sm">{score}</td>
               </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200 bg-white dark:divide-gray-700 dark:bg-gray-800">
-              {Object.entries(stats).map(([player, score]) => (
-                <tr
-                  key={player}
-                  className="hover:bg-gray-50 dark:hover:bg-gray-700/50"
-                >
-                  <td className="px-4 py-3 text-sm font-medium">{player}</td>
-                  <td className="px-4 py-3 text-right text-sm">{score}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <Button onClick={onStartGame} className="w-full">
-        Neues Spiel Starten
-      </Button>
-    </div>
+            ))}
+          </tbody>
+        </table>
+      </CardContent>
+    </>
   );
-}
+};

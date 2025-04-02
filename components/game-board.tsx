@@ -3,8 +3,6 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import ScoreCard from "@/components/score-card";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
 import { useMobile } from "@/hooks/use-mobile";
 import {
   Dialog,
@@ -12,8 +10,11 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
+  DialogFooter,
 } from "@/components/ui/dialog";
 import { useGameStore } from "@/providers/game-store-provider";
+import { Input } from "./ui/input";
+import ScoreInput from "@/components/score-input";
 
 type Section = "upper" | "lower";
 
@@ -206,9 +207,7 @@ export default function GameBoard() {
     setInputValue("");
     setError("");
 
-    if (isMobile) {
-      setDialogOpen(true);
-    }
+    setDialogOpen(true);
   };
 
   const handleScoreSubmit = () => {
@@ -257,9 +256,7 @@ export default function GameBoard() {
     setInputValue("");
     setError("");
 
-    if (isMobile) {
-      setDialogOpen(false);
-    }
+    setDialogOpen(false);
 
     // Check if game is over
     const isGameOver = players.every((player) =>
@@ -305,82 +302,17 @@ export default function GameBoard() {
     }
   };
 
-  const renderScoreInput = (category: Category) => {
-    if (category.type === "special") {
-      return (
-        <div className="w-full">
-          <RadioGroup
-            value={inputValue}
-            onValueChange={setInputValue}
-            className="flex flex-col gap-2"
-          >
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem
-                value={category.points?.toString() ?? "0"}
-                id="success"
-              />
-              <Label htmlFor="success">Erfolg ({category.points} Punkte)</Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="0" id="failed" />
-              <Label htmlFor="failed">Nicht geschafft (0 Punkte)</Label>
-            </div>
-          </RadioGroup>
-        </div>
-      );
-    }
-
-    return (
-      <input
-        type="number"
-        value={inputValue}
-        onChange={(e) => setInputValue(e.target.value)}
-        className="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex h-10 w-full rounded-md border px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50"
-        placeholder="Score eingeben"
-      />
-    );
-  };
-
   return (
     <div className="animate-fadeIn bg-background rounded-lg p-4 shadow-md">
       <div className="mb-4">
-        <h2 className="text-center text-xl font-bold">
-          Aktueller Spieler:{" "}
-          <span className="text-primary">{players[currentPlayerIndex]}</span>
-        </h2>
+        <h2 className="text-center text-xl font-bold"></h2>
+        Aktueller Spieler:{" "}
+        <span className="text-primary">{players[currentPlayerIndex]}</span>
       </div>
 
-      {!isMobile && currentCategory && (
-        <div className="bg-background mb-6 rounded-lg p-4">
-          <h3 className="mb-2 text-lg font-medium">
-            Gib den Score ein für{" "}
-            {categories.find((c) => c.id === currentCategory)?.name}
-          </h3>
-
-          {error && (
-            <div className="bg-destructive text-destructive-foreground mb-3 rounded-md p-2 text-sm">
-              {error}
-            </div>
-          )}
-
-          <div className="flex gap-2">
-            {renderScoreInput(
-              categories.find((c) => c.id === currentCategory)!,
-            )}
-            <Button onClick={handleScoreSubmit}>Absenden</Button>
-          </div>
-
-          <p className="text-muted dark mt-2 text-sm">
-            {getValidationMessage(
-              categories.find((c) => c.id === currentCategory)!,
-            )}
-          </p>
-        </div>
-      )}
-
-      {isMobile && currentCategory && (
+      {currentCategory && (
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-          <DialogContent>
+          <DialogContent className={`${isMobile ? "" : "sm:max-w-[500px]"}`}>
             <DialogHeader>
               <DialogTitle>
                 Gib den Score ein für{" "}
@@ -398,11 +330,17 @@ export default function GameBoard() {
               </div>
             )}
             <div className="flex gap-2">
-              {renderScoreInput(
-                categories.find((c) => c.id === currentCategory)!,
-              )}
-              <Button onClick={handleScoreSubmit}>Absenden</Button>
+              <ScoreInput
+                category={categories.find((c) => c.id === currentCategory)!}
+                inputValue={inputValue}
+                setInputValue={setInputValue}
+              />
             </div>
+            <DialogFooter>
+              <Button type="submit" onClick={handleScoreSubmit}>
+                Absenden
+              </Button>
+            </DialogFooter>
           </DialogContent>
         </Dialog>
       )}

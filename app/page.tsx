@@ -66,31 +66,29 @@ export default function Scorekeeper() {
   };
 
   return (
-    <main className="bg-background min-h-screen p-4">
-      <div className="mx-auto 2xl:max-w-7xl">
-        <h1 className="text-primary mb-6 text-center text-3xl font-bold">
-          Wuerfelblock
-        </h1>
+    <div className="p-4 2xl:max-w-7xl">
+      <h1 className="text-primary mb-6 text-center text-3xl font-bold">
+        Wuerfelblock
+      </h1>
 
-        {(gameState === "landing-page" || gameState === "history-stats") && (
-          <Card>
-            {(gameState === "history-stats" && (
-              <PlayerStats stats={stats} />
-            )) || <WelcomeComponent />}
-            <CardFooter>
-              <StartGameButton onStartGame={handleStartGameClick} />
-            </CardFooter>
-          </Card>
-        )}
+      {(gameState === "landing-page" || gameState === "history-stats") && (
+        <Card>
+          {(gameState === "history-stats" && <PlayerStats stats={stats} />) || (
+            <WelcomeComponent />
+          )}
+          <CardFooter>
+            <StartGameButton onStartGame={handleStartGameClick} />
+          </CardFooter>
+        </Card>
+      )}
 
-        {gameState === "game-init" && <PlayerForm onStartGame={startGame} />}
+      {gameState === "game-init" && <PlayerForm onStartGame={startGame} />}
 
-        {gameState === "game-running" && <GameBoard />}
+      {gameState === "game-running" && <GameBoard />}
 
-        {gameState === "game-over" && (
-          <GameOver scores={finalScores} onNewGame={resetGame} />
-        )}
-      </div>
-    </main>
+      {gameState === "game-over" && (
+        <GameOver scores={finalScores} onNewGame={resetGame} />
+      )}
+    </div>
   );
 }

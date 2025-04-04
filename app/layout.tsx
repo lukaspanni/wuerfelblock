@@ -17,7 +17,7 @@ export default function RootLayout({
     <html lang="de" className="h-full">
       <body className="flex h-full flex-col">
         <GameStoreProvider>
-          <main className="flex-1">{children}</main>
+          <main className="flex flex-1 justify-center p-4">{children}</main>
           <Footer />
         </GameStoreProvider>
       </body>

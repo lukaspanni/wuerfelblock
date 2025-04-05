@@ -9,8 +9,9 @@ import { Card, CardFooter } from "@/components/ui/card";
 import { WelcomeComponent } from "@/components/welcome";
 import { loadFromLocalStorage, saveToLocalStorage } from "@/lib/local-storage";
 import { useGameStore } from "@/providers/game-store-provider";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { z } from "zod";
+import { ConfirmDialog } from "@/components/confirm-dialog";
 
 const statsSchema = z.record(z.string(), z.number());
 
@@ -24,6 +25,8 @@ export default function Scorekeeper() {
     finalScores,
     resetGame,
   } = useGameStore((state) => state);
+
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
 
   useEffect(() => {
     // Load past scores on initial render
@@ -67,7 +70,16 @@ export default function Scorekeeper() {
 
   return (
     <div className="max-w-xl flex-1 lg:max-w-3xl 2xl:max-w-7xl">
-      <h1 className="text-primary mb-6 text-center text-3xl font-bold">
+      <h1
+        className="text-primary mb-6 text-center text-3xl font-bold"
+        onClick={() => {
+          if (gameState === "game-running") {
+            setShowConfirmDialog(true);
+          } else {
+            setGameState("landing-page");
+          }
+        }}
+      >
         Wuerfelblock
       </h1>
 
@@ -89,6 +101,16 @@ export default function Scorekeeper() {
       {gameState === "game-over" && (
         <GameOver scores={finalScores} onNewGame={resetGame} />
       )}
+      <ConfirmDialog
+        isOpen={showConfirmDialog}
+        title="End current game?"
+        description="Are you sure you want to return to the start page? This will end the current game."
+        onClose={() => setShowConfirmDialog(false)}
+        onConfirm={() => {
+          setGameState("landing-page");
+          setShowConfirmDialog(false);
+        }}
+      />
     </div>
   );
 }

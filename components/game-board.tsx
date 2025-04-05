@@ -1,19 +1,20 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
 import ScoreCard from "@/components/score-card";
-import { useMobile } from "@/hooks/use-mobile";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
-  DialogTitle,
   DialogDescription,
   DialogFooter,
+  DialogHeader,
+  DialogTitle,
 } from "@/components/ui/dialog";
-import { useGameStore } from "@/providers/game-store-provider";
+import { useMobile } from "@/hooks/use-mobile";
+import { useEffect, useState } from "react";
 import ScoreInput from "@/components/score-input";
+import { useGameStore } from "@/providers/game-store-provider";
 
 type Section = "upper" | "lower";
 
@@ -302,56 +303,60 @@ export default function GameBoard() {
   };
 
   return (
-    <div className="animate-fadeIn bg-background rounded-lg p-4 shadow-md">
-      <div className="mb-4">
-        <h2 className="text-center text-xl font-bold"></h2>
-        Aktueller Spieler:{" "}
-        <span className="text-primary">{players[currentPlayerIndex]}</span>
-      </div>
-
-      {currentCategory && (
-        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-          <DialogContent className={`${isMobile ? "" : "sm:max-w-[500px]"}`}>
-            <DialogHeader>
-              <DialogTitle>
-                Gib den Score ein für{" "}
-                {categories.find((c) => c.id === currentCategory)?.name}
-              </DialogTitle>
-              <DialogDescription>
-                {getValidationMessage(
-                  categories.find((c) => c.id === currentCategory)!,
-                )}
-              </DialogDescription>
-            </DialogHeader>
-            {error && (
-              <div className="bg-destructive text-destructive-foreground mb-3 rounded-md p-2 text-sm">
-                {error}
+    <Card>
+      <CardHeader>
+        <CardTitle>
+          Aktueller Spieler:{" "}
+          <span className="text-primary text-xl font-bold">
+            {players[currentPlayerIndex]}
+          </span>
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        {currentCategory && (
+          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+            <DialogContent className={`${isMobile ? "" : "sm:max-w-[500px]"}`}>
+              <DialogHeader>
+                <DialogTitle>
+                  Gib den Score ein für{" "}
+                  {categories.find((c) => c.id === currentCategory)?.name}
+                </DialogTitle>
+                <DialogDescription>
+                  {getValidationMessage(
+                    categories.find((c) => c.id === currentCategory)!,
+                  )}
+                </DialogDescription>
+              </DialogHeader>
+              {error && (
+                <div className="bg-destructive text-destructive-foreground mb-3 rounded-md p-2 text-sm">
+                  {error}
+                </div>
+              )}
+              <div className="flex gap-2">
+                <ScoreInput
+                  category={categories.find((c) => c.id === currentCategory)!}
+                  inputValue={inputValue}
+                  setInputValue={setInputValue}
+                />
               </div>
-            )}
-            <div className="flex gap-2">
-              <ScoreInput
-                category={categories.find((c) => c.id === currentCategory)!}
-                inputValue={inputValue}
-                setInputValue={setInputValue}
-              />
-            </div>
-            <DialogFooter>
-              <Button type="submit" onClick={handleScoreSubmit}>
-                Absenden
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      )}
+              <DialogFooter>
+                <Button type="submit" onClick={handleScoreSubmit}>
+                  Absenden
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        )}
 
-      <ScoreCard
-        players={players}
-        categories={categories}
-        scores={scores}
-        totals={totals}
-        currentPlayer={players[currentPlayerIndex]}
-        onCategorySelect={handleScoreSelect}
-      />
-    </div>
+        <ScoreCard
+          players={players}
+          categories={categories}
+          scores={scores}
+          totals={totals}
+          currentPlayer={players[currentPlayerIndex]}
+          onCategorySelect={handleScoreSelect}
+        />
+      </CardContent>
+    </Card>
   );
 }

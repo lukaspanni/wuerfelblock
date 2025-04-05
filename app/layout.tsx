@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { GameStoreProvider } from "@/providers/game-store-provider";
 import { Footer } from "@/components/footer";
+import { ThemeProvider } from "@/components/theme-provider";
+import { Header } from "@/components/header";
 
 export const metadata: Metadata = {
   title: "Wuerfelblock v2",
@@ -14,11 +16,21 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="de" className="h-full">
-      <body className="flex h-full flex-col">
+    <html lang="de" suppressHydrationWarning>
+      <body>
         <GameStoreProvider>
-          <main className="flex flex-1 justify-center p-4">{children}</main>
-          <Footer />
+          <ThemeProvider
+            defaultTheme="system"
+            enableSystem
+            attribute="class"
+            disableTransitionOnChange
+          >
+            <div className="flex h-screen flex-col">
+              <Header />
+              <main className="flex flex-1 justify-center p-4">{children}</main>
+              <Footer />
+            </div>
+          </ThemeProvider>
         </GameStoreProvider>
       </body>
     </html>

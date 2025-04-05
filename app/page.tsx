@@ -66,7 +66,7 @@ export default function Scorekeeper() {
   };
 
   return (
-    <div className="flex-1 max-w-xl lg:max-w-3xl 2xl:max-w-7xl">
+    <div className="max-w-xl flex-1 lg:max-w-3xl 2xl:max-w-7xl">
       <h1 className="text-primary mb-6 text-center text-3xl font-bold">
         Wuerfelblock
       </h1>

@@ -2,13 +2,14 @@
 
 import type React from "react";
 
-import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { loadFromLocalStorage, saveToLocalStorage } from "@/lib/local-storage";
 import { X } from "lucide-react";
+import { useEffect, useState } from "react";
 import { z } from "zod";
-import { saveToLocalStorage, loadFromLocalStorage } from "@/lib/local-storage";
 
 const lastGamePlayersSchema = z.array(z.string());
 
@@ -81,72 +82,76 @@ export default function PlayerForm({ onStartGame }: PlayerFormProps) {
   };
 
   return (
-    <div className="animate-fadeIn rounded-lg p-6 shadow-md">
-      <h2 className="mb-4 text-center text-2xl font-bold">Neues Spiel</h2>
+    <Card>
+      <CardHeader>
+        <CardTitle>Neues Spiel</CardTitle>
+      </CardHeader>
 
-      {error && (
-        <span className="bg-destructive text-destructive-foreground mb-4 block rounded-md p-2 text-sm">
-          {error}
-        </span>
-      )}
+      <CardContent>
+        {error && (
+          <span className="bg-destructive text-destructive-foreground mb-4 block rounded-md p-2 text-sm">
+            {error}
+          </span>
+        )}
 
-      <form onSubmit={handleSubmit}>
-        <div className="mb-6 space-y-4">
-          {players.map((player, index) => (
-            <div key={index} className="flex items-center gap-2">
-              <div className="flex-1">
-                <Label htmlFor={`player-${index}`} className="sr-only">
-                  Spieler {index + 1}
-                </Label>
-                <Input
-                  id={`player-${index}`}
-                  placeholder={`Spieler ${index + 1} Name`}
-                  value={player}
-                  onChange={(e) => updatePlayer(index, e.target.value)}
-                  className="w-full"
-                />
+        <form onSubmit={handleSubmit}>
+          <div className="mb-6 space-y-4">
+            {players.map((player, index) => (
+              <div key={index} className="flex items-center gap-2">
+                <div className="flex-1">
+                  <Label htmlFor={`player-${index}`} className="sr-only">
+                    Spieler {index + 1}
+                  </Label>
+                  <Input
+                    id={`player-${index}`}
+                    placeholder={`Spieler ${index + 1} Name`}
+                    value={player}
+                    onChange={(e) => updatePlayer(index, e.target.value)}
+                    className="w-full"
+                  />
+                </div>
+                {players.length > 1 && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => removePlayer(index)}
+                    className="h-8 w-8"
+                  >
+                    <X className="h-4 w-4" />
+                    <span className="sr-only">Spieler entfernen</span>
+                  </Button>
+                )}
               </div>
-              {players.length > 1 && (
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => removePlayer(index)}
-                  className="h-8 w-8"
-                >
-                  <X className="h-4 w-4" />
-                  <span className="sr-only">Spieler entfernen</span>
-                </Button>
-              )}
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
 
-        <div className="flex flex-col gap-3">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={addPlayer}
-            className="w-full"
-          >
-            Spieler Hinzufügen
-          </Button>
-
-          <Button type="submit" className="w-full" variant="default">
-            Spiel Starten
-          </Button>
-          {hasLastGame && (
+          <div className="flex flex-col gap-3">
             <Button
               type="button"
-              onClick={handleQuickStart}
-              className="bg-accent text-accent-foreground w-full"
-              variant="default"
+              variant="outline"
+              onClick={addPlayer}
+              className="w-full"
             >
-              Schnellstart letztes Spiel
+              Spieler Hinzufügen
             </Button>
-          )}
-        </div>
-      </form>
-    </div>
+
+            <Button type="submit" className="w-full" variant="default">
+              Spiel Starten
+            </Button>
+            {hasLastGame && (
+              <Button
+                type="button"
+                onClick={handleQuickStart}
+                className="bg-accent text-accent-foreground w-full"
+                variant="default"
+              >
+                Schnellstart letztes Spiel
+              </Button>
+            )}
+          </div>
+        </form>
+      </CardContent>
+    </Card>
   );
 }

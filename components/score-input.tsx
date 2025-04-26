@@ -28,7 +28,9 @@ const ScoreInput: React.FC<ScoreInputProps> = ({
               value={category.points?.toString() ?? "0"}
               id="success"
             />
-            <Label htmlFor="success">Erfolg ({category.points} Punkte)</Label>
+            <Label htmlFor="success">
+              Geschafft ({category.points} Punkte)
+            </Label>
           </div>
           <div className="flex items-center space-x-2">
             <RadioGroupItem value="0" id="failed" />

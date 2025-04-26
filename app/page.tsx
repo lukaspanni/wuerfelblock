@@ -103,8 +103,10 @@ export default function Scorekeeper() {
       )}
       <ConfirmDialog
         isOpen={showConfirmDialog}
-        title="End current game?"
-        description="Are you sure you want to return to the start page? This will end the current game."
+        title="Aktuelles Spiel beenden?"
+        description="Bist du sicher, dass du das aktuelle Spiel beenden möchtest?"
+        confirmText="Ja, Spiel beenden"
+        cancelText="Nein, weitermachen"
         onClose={() => setShowConfirmDialog(false)}
         onConfirm={() => {
           setGameState("landing-page");

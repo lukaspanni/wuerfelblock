@@ -15,6 +15,7 @@ import { useMobile } from "@/hooks/use-mobile";
 import { useEffect, useState } from "react";
 import ScoreInput from "@/components/score-input";
 import { useGameStore } from "@/providers/game-store-provider";
+import { Undo, Redo } from "lucide-react";
 
 type Section = "upper" | "lower";
 
@@ -168,6 +169,10 @@ export default function GameBoard() {
     setScores,
     updatePlayerScore,
     endGame,
+    lastMove,
+    undoneMove,
+    undoLastMove,
+    redoLastMove,
   } = useGameStore((state) => state);
 
   const [error, setError] = useState("");
@@ -193,6 +198,26 @@ export default function GameBoard() {
     setScores(initialScores);
     setTotals(initialTotals);
   }, [players, setScores]);
+
+  useEffect(() => {
+    // Recalculate totals whenever scores change (including after undo/redo)
+    const updatedTotals: Record<string, number> = {};
+
+    players.forEach((player) => {
+      if (scores[player]) {
+        const playerScores = scores[player];
+        const upperTotal = calculateUpperSectionTotal(playerScores);
+        const bonus = calculateBonus(upperTotal);
+        const lowerTotal = calculateLowerSectionTotal(playerScores);
+
+        updatedTotals[player] = upperTotal + bonus + lowerTotal;
+      } else {
+        updatedTotals[player] = 0;
+      }
+    });
+
+    setTotals(updatedTotals);
+  }, [scores, players]);
 
   const handleScoreSelect = (category: string) => {
     const currentPlayer = players[currentPlayerIndex];
@@ -305,11 +330,33 @@ export default function GameBoard() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>
-          Aktueller Spieler:{" "}
-          <span className="text-primary text-xl font-bold">
-            {players[currentPlayerIndex]}
+        <CardTitle className="flex items-center justify-between">
+          <span>
+            Aktueller Spieler:{" "}
+            <span className="text-primary text-xl font-bold">
+              {players[currentPlayerIndex]}
+            </span>
           </span>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={undoLastMove}
+              disabled={!lastMove}
+              title="Letzten Zug rückgängig machen"
+            >
+              <Undo className="size-4" />
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={redoLastMove}
+              disabled={!undoneMove}
+              title="Letzten rückgängig gemachten Zug wiederherstellen"
+            >
+              <Redo className="size-4" />
+            </Button>
+          </div>
         </CardTitle>
       </CardHeader>
       <CardContent>

@@ -7,6 +7,13 @@ export type GameState =
   | "game-running"
   | "game-over";
 
+export type LastMove = {
+  player: string;
+  category: string;
+  score: number;
+  previousPlayerIndex: number;
+};
+
 export type GameStoreState = {
   gameState: GameState;
   players: string[];
@@ -14,6 +21,8 @@ export type GameStoreState = {
   stats: Record<string, number>;
   currentPlayerIndex: number;
   finalScores: Record<string, number>;
+  lastMove: LastMove | null;
+  undoneMove: LastMove | null;
 };
 
 export type GameStateActions = {
@@ -33,6 +42,8 @@ export type GameStateActions = {
   startGame: (playerNames: string[]) => void;
   endGame: (scores: Record<string, number>) => void;
   resetGame: () => void;
+  undoLastMove: () => boolean;
+  redoLastMove: () => boolean;
 };
 
 export type GameStore = GameStoreState & GameStateActions;
@@ -44,6 +55,8 @@ export const initialGameState: GameStoreState = {
   stats: {},
   currentPlayerIndex: 0,
   finalScores: {},
+  lastMove: null,
+  undoneMove: null,
 };
 
 // Create the store outside of components
@@ -62,13 +75,21 @@ export const createGameStore = (initState: GameStoreState = initialGameState) =>
     // Complex actions
     updatePlayerScore: (player, category, value) => {
       const currentScores = { ...get().scores };
+      const currentPlayerIndex = get().currentPlayerIndex;
 
       if (!currentScores[player]) {
         currentScores[player] = {};
       }
-
+      set({
+        lastMove: {
+          player,
+          category,
+          score: value,
+          previousPlayerIndex: currentPlayerIndex,
+        },
+        undoneMove: null,
+      });
       currentScores[player][category] = value;
-
       set({ scores: currentScores });
 
       // Return the updated scores
@@ -130,6 +151,51 @@ export const createGameStore = (initState: GameStoreState = initialGameState) =>
         currentPlayerIndex: 0,
         scores: {},
         finalScores: {},
+        lastMove: null,
+        undoneMove: null,
       });
+    },
+
+    undoLastMove: () => {
+      const { lastMove, scores } = get();
+      if (!lastMove) return false;
+      const updatedScores = { ...scores };
+
+      // Remove the last score
+      if (updatedScores[lastMove.player])
+        updatedScores[lastMove.player][lastMove.category] = null;
+
+      // Store the undone move for potential redo
+      set({
+        scores: updatedScores,
+        currentPlayerIndex: lastMove.previousPlayerIndex,
+        undoneMove: lastMove,
+        lastMove: null,
+      });
+
+      return true;
+    },
+
+    redoLastMove: () => {
+      const { undoneMove, scores } = get();
+      if (!undoneMove) return false;
+      const updatedScores = { ...scores };
+
+      // Reapply the undone score
+      if (!updatedScores[undoneMove.player])
+        updatedScores[undoneMove.player] = {};
+
+      updatedScores[undoneMove.player][undoneMove.category] = undoneMove.score;
+
+      // Save the move again as last move for being able to undo it again
+      set({
+        scores: updatedScores,
+        currentPlayerIndex:
+          (undoneMove.previousPlayerIndex + 1) % get().players.length,
+        lastMove: undoneMove,
+        undoneMove: null,
+      });
+
+      return true;
     },
   }));

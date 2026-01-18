@@ -3,17 +3,41 @@
 import { useTheme } from "next-themes";
 import {
   DropdownMenu,
+  DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { Sun, Moon } from "lucide-react";
+import { Moon, Settings, Sun } from "lucide-react";
+import { useGameStore } from "@/providers/game-store-provider";
 
 export const Header = () => {
   const { setTheme } = useTheme();
+  const diceEnabled = useGameStore((state) => state.diceEnabled);
+  const setDiceEnabled = useGameStore((state) => state.setDiceEnabled);
   return (
-    <div className="flex w-full justify-end px-4 py-2">
+    <div className="flex w-full justify-end gap-2 px-4 py-2">
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="outline" size="icon">
+            <Settings className="h-[1.2rem] w-[1.2rem]" />
+            <span className="sr-only">Einstellungen öffnen</span>
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuLabel>Einstellungen</DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          <DropdownMenuCheckboxItem
+            checked={diceEnabled}
+            onCheckedChange={(checked) => setDiceEnabled(Boolean(checked))}
+          >
+            Würfel aktivieren
+          </DropdownMenuCheckboxItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="outline" size="icon">

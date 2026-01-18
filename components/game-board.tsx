@@ -29,6 +29,9 @@ export type Category = {
   points?: number;
 };
 
+const DICE_COUNT = 5;
+const MAX_ROLLS = 3;
+
 // Define the scoring categories and their validation rules
 const categories: Category[] = [
   {
@@ -160,6 +163,89 @@ const calculateLowerSectionTotal = (
     .reduce((sum, category) => sum + (playerScores[category.id] || 0), 0);
 };
 
+const DiceRoller = () => {
+  const [diceValues, setDiceValues] = useState<Array<number | null>>(() =>
+    Array.from({ length: DICE_COUNT }, () => null),
+  );
+  const [keptDice, setKeptDice] = useState<boolean[]>(() =>
+    Array.from({ length: DICE_COUNT }, () => false),
+  );
+  const [rollCount, setRollCount] = useState(0);
+
+  const handleRollDice = () => {
+    if (rollCount >= MAX_ROLLS) return;
+    setDiceValues((previousValues) =>
+      previousValues.map((value, index) => {
+        const shouldRoll = rollCount === 0 || !keptDice[index];
+        if (!shouldRoll) return value;
+        return Math.floor(Math.random() * 6) + 1;
+      }),
+    );
+    setRollCount((previousCount) =>
+      Math.min(previousCount + 1, MAX_ROLLS),
+    );
+  };
+
+  const toggleKeepDie = (index: number) => {
+    if (rollCount === 0) return;
+    setKeptDice((previousDice) =>
+      previousDice.map((keep, currentIndex) =>
+        currentIndex === index ? !keep : keep,
+      ),
+    );
+  };
+
+  return (
+    <div className="mb-4 rounded-lg border p-3">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <p className="text-sm font-medium">Würfel</p>
+          <p className="text-muted-foreground text-xs">
+            {rollCount === 0
+              ? "Erster Wurf würfelt alle 5 Würfel."
+              : `Wurf ${rollCount} von ${MAX_ROLLS}`}
+          </p>
+        </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleRollDice}
+          disabled={rollCount >= MAX_ROLLS}
+        >
+          {rollCount === 0 ? "Würfeln" : "Nochmal würfeln"}
+        </Button>
+      </div>
+      <div className="mt-3 flex flex-wrap gap-2">
+        {diceValues.map((value, index) => (
+          <Button
+            key={index}
+            type="button"
+            variant={keptDice[index] ? "default" : "outline"}
+            className="size-12 text-lg font-semibold"
+            aria-pressed={keptDice[index]}
+            disabled={rollCount === 0}
+            onClick={() => toggleKeepDie(index)}
+            title={
+              rollCount === 0
+                ? "Erst würfeln"
+                : keptDice[index]
+                  ? "Zum erneuten Würfeln freigeben"
+                  : "Würfel behalten"
+            }
+          >
+            {value ?? "-"}
+          </Button>
+        ))}
+      </div>
+      <p className="text-muted-foreground mt-2 text-xs">
+        {rollCount >= MAX_ROLLS
+          ? "Keine Würfe mehr verfügbar."
+          : "Tippe auf einen Würfel, um ihn für den nächsten Wurf zu behalten oder erneut zu würfeln."}
+      </p>
+    </div>
+  );
+};
+
 export default function GameBoard() {
   const {
     players,
@@ -173,6 +259,7 @@ export default function GameBoard() {
     undoneMove,
     undoLastMove,
     redoLastMove,
+    diceEnabled,
   } = useGameStore((state) => state);
 
   const [error, setError] = useState("");
@@ -394,6 +481,8 @@ export default function GameBoard() {
             </DialogContent>
           </Dialog>
         )}
+
+        {diceEnabled && <DiceRoller key={currentPlayerIndex} />}
 
         <ScoreCard
           players={players}

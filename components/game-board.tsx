@@ -31,6 +31,9 @@ export type Category = {
 
 const DICE_COUNT = 5;
 const MAX_ROLLS = 3;
+const createDiceValues = () =>
+  Array.from({ length: DICE_COUNT }, () => null);
+const createKeptDice = () => Array.from({ length: DICE_COUNT }, () => false);
 
 // Define the scoring categories and their validation rules
 const categories: Category[] = [
@@ -164,12 +167,9 @@ const calculateLowerSectionTotal = (
 };
 
 const DiceRoller = () => {
-  const [diceValues, setDiceValues] = useState<Array<number | null>>(() =>
-    Array.from({ length: DICE_COUNT }, () => null),
-  );
-  const [keptDice, setKeptDice] = useState<boolean[]>(() =>
-    Array.from({ length: DICE_COUNT }, () => false),
-  );
+  const [diceValues, setDiceValues] =
+    useState<Array<number | null>>(createDiceValues);
+  const [keptDice, setKeptDice] = useState<boolean[]>(createKeptDice);
   const [rollCount, setRollCount] = useState(0);
 
   const handleRollDice = () => {
@@ -218,7 +218,7 @@ const DiceRoller = () => {
       <div className="mt-3 flex flex-wrap gap-2">
         {diceValues.map((value, index) => (
           <Button
-            key={index}
+            key={`dice-${index}`}
             type="button"
             variant={keptDice[index] ? "default" : "outline"}
             className="size-12 text-lg font-semibold"

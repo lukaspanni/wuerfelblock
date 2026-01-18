@@ -181,9 +181,7 @@ const DiceRoller = () => {
         return Math.floor(Math.random() * 6) + 1;
       }),
     );
-    setRollCount((previousCount) =>
-      Math.min(previousCount + 1, MAX_ROLLS),
-    );
+    setRollCount((previousCount) => previousCount + 1);
   };
 
   const toggleKeepDie = (index: number) => {

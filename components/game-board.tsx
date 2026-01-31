@@ -172,6 +172,7 @@ const getDiceCounts = (values: number[]) => {
   const counts = Array.from({ length: 7 }, () => 0);
   values.forEach((value) => {
     if (value < 1 || value > 6) {
+      console.warn("Ungültiger Würfelwert erkannt:", value);
       return;
     }
     counts[value] += 1;
@@ -242,18 +243,28 @@ const getSuggestedScore = (
 type DiceRollerProps = {
   diceValues: Array<number | null>;
   onDiceChange: (dice: Array<number | null>) => void;
+  onFinalRoll: (dice: Array<number | null>) => void;
+  resetToken: number;
   lastRollSummary: string | null;
 };
 
 const DiceRoller = ({
   diceValues,
   onDiceChange,
+  onFinalRoll,
+  resetToken,
   lastRollSummary,
 }: DiceRollerProps) => {
   const [keptDice, setKeptDice] = useState<boolean[]>(createKeptDice);
   const [rollCount, setRollCount] = useState(0);
   const [rollingIndices, setRollingIndices] =
     useState<Set<number>>(createRollIndices);
+
+  useEffect(() => {
+    setKeptDice(createKeptDice());
+    setRollCount(0);
+    setRollingIndices(createRollIndices());
+  }, [resetToken]);
 
   const handleRollDice = () => {
     if (rollCount >= MAX_ROLLS) return;
@@ -264,13 +275,16 @@ const DiceRoller = ({
       return indices;
     }, []);
     setRollingIndices(new Set(indicesToRoll));
-    onDiceChange(
-      diceValues.map((value, index) => {
-        if (!indicesToRoll.includes(index)) return value;
-        return Math.floor(Math.random() * 6) + 1;
-      }),
-    );
-    setRollCount((previousCount) => previousCount + 1);
+    const nextValues = diceValues.map((value, index) => {
+      if (!indicesToRoll.includes(index)) return value;
+      return Math.floor(Math.random() * 6) + 1;
+    });
+    onDiceChange(nextValues);
+    const nextRollCount = rollCount + 1;
+    setRollCount(nextRollCount);
+    if (nextRollCount === MAX_ROLLS) {
+      onFinalRoll(nextValues);
+    }
   };
 
   const toggleKeepDie = (index: number) => {
@@ -380,6 +394,10 @@ export default function GameBoard() {
   const [diceValues, setDiceValues] = useState<Array<number | null>>(
     createDiceValues,
   );
+  const [finalDiceValues, setFinalDiceValues] = useState<Array<number | null>>(
+    createDiceValues,
+  );
+  const [diceResetToken, setDiceResetToken] = useState(0);
 
   // Initialize scores
   useEffect(() => {
@@ -399,20 +417,20 @@ export default function GameBoard() {
   }, [players, setScores]);
 
   const hasAllDice = useMemo(
-    () => diceValues.every((value) => value !== null),
-    [diceValues],
+    () => finalDiceValues.every((value) => value !== null),
+    [finalDiceValues],
   );
   const diceTotal = useMemo(
     () =>
-      diceValues.reduce<number>((sum, value) => sum + (value ?? 0), 0),
-    [diceValues],
+      finalDiceValues.reduce<number>((sum, value) => sum + (value ?? 0), 0),
+    [finalDiceValues],
   );
   const lastRollSummary = useMemo(
     () =>
       hasAllDice
-        ? `Letzter Wurf: ${diceValues.join(", ")} (Summe ${diceTotal}). Trage jetzt eine Kategorie ein.`
+        ? `Letzter Wurf: ${finalDiceValues.join(", ")} (Summe ${diceTotal}). Trage jetzt eine Kategorie ein.`
         : null,
-    [diceTotal, diceValues, hasAllDice],
+    [diceTotal, finalDiceValues, hasAllDice],
   );
 
   useEffect(() => {
@@ -445,9 +463,10 @@ export default function GameBoard() {
     }
 
     const categoryObj = categories.find((c) => c.id === category);
-    const suggestedScore = categoryObj
-      ? getSuggestedScore(categoryObj.id, diceValues)
-      : null;
+    const suggestedScore =
+      diceEnabled && hasAllDice && categoryObj
+        ? getSuggestedScore(categoryObj.id, finalDiceValues)
+        : null;
     setCurrentCategory(category);
     setInputValue(suggestedScore ?? "");
     setError("");
@@ -503,6 +522,8 @@ export default function GameBoard() {
 
     setDialogOpen(false);
     setDiceValues(createDiceValues());
+    setFinalDiceValues(createDiceValues());
+    setDiceResetToken((token) => token + 1);
 
     // Check if game is over
     const isGameOver = players.every((player) =>
@@ -620,6 +641,8 @@ export default function GameBoard() {
           <DiceRoller
             diceValues={diceValues}
             onDiceChange={setDiceValues}
+            onFinalRoll={setFinalDiceValues}
+            resetToken={diceResetToken}
             lastRollSummary={lastRollSummary}
           />
         )}

@@ -263,6 +263,10 @@ const DiceRoller = ({
   const [rollingIndices, setRollingIndices] =
     useState<Set<number>>(createRollIndices);
   const animationFrameId = useRef<number | null>(null);
+  const animationState = useRef<{ startTime: number | null; lastTick: number }>({
+    startTime: null,
+    lastTick: 0,
+  });
   const diceValuesRef = useRef(diceValues);
 
   useEffect(() => {
@@ -277,6 +281,7 @@ const DiceRoller = ({
       window.cancelAnimationFrame(animationFrameId.current);
     }
     animationFrameId.current = null;
+    animationState.current = { startTime: null, lastTick: 0 };
   }, [resetToken]);
 
   useEffect(() => {
@@ -320,20 +325,20 @@ const DiceRoller = ({
     if (animationFrameId.current !== null) {
       window.cancelAnimationFrame(animationFrameId.current);
     }
-    let startTime: number | null = null;
-    let lastTick = 0;
+    animationState.current = { startTime: null, lastTick: 0 };
     const step = (timestamp: number) => {
-      if (startTime === null) startTime = timestamp;
-      const elapsed = timestamp - startTime;
+      const state = animationState.current;
+      if (state.startTime === null) state.startTime = timestamp;
+      const elapsed = timestamp - state.startTime;
       if (elapsed >= ROLL_ANIMATION_DURATION_MS) {
         animationFrameId.current = null;
         finalizeRoll(rollValues(diceValuesRef.current));
         setRollingIndices(createRollIndices());
         return;
       }
-      if (timestamp - lastTick >= ROLL_ANIMATION_INTERVAL_MS) {
+      if (timestamp - state.lastTick >= ROLL_ANIMATION_INTERVAL_MS) {
         onDiceChange(rollValues(diceValuesRef.current));
-        lastTick = timestamp;
+        state.lastTick = timestamp;
       }
       animationFrameId.current = window.requestAnimationFrame(step);
     };
@@ -443,6 +448,7 @@ export default function GameBoard() {
   const [storedSuggestions, setStoredSuggestions] = useState<
     Array<{ name: string; score: number }>
   >([]);
+  const lastStoredDiceKey = useRef<string | null>(null);
 
   // Initialize scores
   useEffect(() => {
@@ -489,10 +495,12 @@ export default function GameBoard() {
   }, [diceEnabled, finalDiceValues, hasAllDice, players, currentPlayerIndex, scores]);
   const scoreSuggestions = freshSuggestions ?? storedSuggestions;
   useEffect(() => {
-    if (freshSuggestions) {
-      setStoredSuggestions(freshSuggestions);
-    }
-  }, [freshSuggestions]);
+    if (!freshSuggestions) return;
+    const diceKey = finalDiceValues.join(",");
+    if (lastStoredDiceKey.current === diceKey) return;
+    lastStoredDiceKey.current = diceKey;
+    setStoredSuggestions(freshSuggestions);
+  }, [finalDiceValues, freshSuggestions]);
   const lastRollRecommendation = useMemo(() => {
     if (!hasAllDice || scoreSuggestions.length === 0) return null;
     const topSuggestions = scoreSuggestions.slice(0, 3);

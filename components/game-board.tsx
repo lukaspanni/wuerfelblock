@@ -168,6 +168,7 @@ const calculateLowerSectionTotal = (
 };
 
 const getDiceCounts = (values: number[]) => {
+  // Index 0 is unused to align indices with die faces (1-6).
   const counts = Array.from({ length: 7 }, () => 0);
   values.forEach((value) => {
     counts[value] += 1;
@@ -313,7 +314,6 @@ const DiceRoller = ({
             type="button"
             variant={keptDice[index] ? "default" : "outline"}
             className="size-12 text-lg font-semibold"
-            aria-label={`Würfel ${index + 1}: ${value ?? "noch nicht geworfen"}`}
             aria-pressed={keptDice[index]}
             disabled={rollCount === 0}
             onClick={() => toggleKeepDie(index)}
@@ -341,7 +341,10 @@ const DiceRoller = ({
           : "Tippe auf einen Würfel, um ihn für den nächsten Wurf zu behalten oder erneut zu würfeln."}
       </p>
       {rollCount >= MAX_ROLLS && lastRollSummary && (
-        <p className="text-muted-foreground mt-1 text-xs">
+        <p
+          className="text-muted-foreground mt-1 text-xs"
+          aria-live="polite"
+        >
           {lastRollSummary}
         </p>
       )}

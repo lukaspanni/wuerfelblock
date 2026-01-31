@@ -1,6 +1,6 @@
 "use client";
 
-import { type ReactNode, createContext, useRef, useContext } from "react";
+import { type ReactNode, createContext, useState, useContext } from "react";
 import { useStore } from "zustand";
 import { type GameStore, createGameStore } from "@/lib/game-store";
 
@@ -15,11 +15,10 @@ export interface GameStoreProviderProps {
 }
 
 export const GameStoreProvider = ({ children }: GameStoreProviderProps) => {
-  const storeRef = useRef<GameStoreApi | null>(null);
-  if (storeRef.current === null) storeRef.current = createGameStore();
+  const [store] = useState(createGameStore);
 
   return (
-    <GameStoreContext.Provider value={storeRef.current}>
+    <GameStoreContext.Provider value={store}>
       {children}
     </GameStoreContext.Provider>
   );

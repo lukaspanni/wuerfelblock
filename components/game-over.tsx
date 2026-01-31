@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useMemo, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import confetti from "canvas-confetti";
 
@@ -10,36 +10,32 @@ interface GameOverProps {
 }
 
 export default function GameOver({ scores, onNewGame }: GameOverProps) {
-  const [rankings, setRankings] = useState<
-    Array<{ player: string; score: number; rank: number }>
-  >([]);
-
-  useEffect(() => {
+  const rankings = useMemo(() => {
     // Sort players by score in descending order
     const sortedPlayers = Object.entries(scores)
       .map(([player, score]) => ({ player, score }))
       .sort((a, b) => b.score - a.score);
 
-    // Assign ranks (players with the same score get the same rank)
-    let currentRank = 1;
-    const rankedPlayers = sortedPlayers.map((player, index) => {
-      if (index > 0 && player.score < sortedPlayers[index - 1].score) {
-        currentRank = index + 1;
-      }
-      return { ...player, rank: currentRank };
-    });
+    // Assign ranks in a single pass (players with the same score get the same rank)
+    return sortedPlayers.reduce<Array<{ player: string; score: number; rank: number }>>((acc, player, index) => {
+      const rank = index === 0 || player.score < acc[index - 1].score 
+        ? index + 1 
+        : acc[index - 1].rank;
+      acc.push({ ...player, rank });
+      return acc;
+    }, []);
+  }, [scores]);
 
-    setRankings(rankedPlayers);
-
+  useEffect(() => {
     // Trigger confetti for the winner
-    if (sortedPlayers.length > 0) {
+    if (rankings.length > 0) {
       void confetti({
         particleCount: 100,
         spread: 70,
         origin: { y: 0.6 },
       });
     }
-  }, [scores]);
+  }, [rankings]);
 
   return (
     <div className="animate-fadeIn rounded-lg bg-white p-6 shadow-md dark:bg-gray-800">

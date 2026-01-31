@@ -3,7 +3,7 @@ import tseslint from "typescript-eslint";
 
 export default tseslint.config(
   {
-    ignores: [".next"],
+    ignores: [".next", "*.mjs"],
   },
   ...nextConfig,
   ...tseslint.configs.recommended,

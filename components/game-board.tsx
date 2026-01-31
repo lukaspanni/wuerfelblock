@@ -328,14 +328,16 @@ const DiceRoller = ({
       if (startTime === null) startTime = timestamp;
       const elapsed = timestamp - startTime;
       if (elapsed >= ROLL_ANIMATION_DURATION_MS) {
-        finalizeRoll();
         animationFrameId.current = null;
+        finalizeRoll();
+        setRollingIndices(createRollIndices());
         return;
       }
       if (timestamp - lastTick >= ROLL_ANIMATION_INTERVAL_MS) {
         onDiceChange(rollValues(diceValuesRef.current));
         lastTick = timestamp;
       }
+      if (animationFrameId.current === null) return;
       animationFrameId.current = window.requestAnimationFrame(step);
     };
     animationFrameId.current = window.requestAnimationFrame(step);

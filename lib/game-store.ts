@@ -23,6 +23,7 @@ export type GameStoreState = {
   finalScores: Record<string, number>;
   lastMove: LastMove | null;
   undoneMove: LastMove | null;
+  diceEnabled: boolean;
 };
 
 export type GameStateActions = {
@@ -44,6 +45,7 @@ export type GameStateActions = {
   resetGame: () => void;
   undoLastMove: () => boolean;
   redoLastMove: () => boolean;
+  setDiceEnabled: (enabled: boolean) => void;
 };
 
 export type GameStore = GameStoreState & GameStateActions;
@@ -57,6 +59,7 @@ export const initialGameState: GameStoreState = {
   finalScores: {},
   lastMove: null,
   undoneMove: null,
+  diceEnabled: false,
 };
 
 // Create the store outside of components
@@ -71,6 +74,7 @@ export const createGameStore = (initState: GameStoreState = initialGameState) =>
     setStats: (stats) => set({ stats }),
     setCurrentPlayerIndex: (index) => set({ currentPlayerIndex: index }),
     setFinalScores: (finalScores) => set({ finalScores }),
+    setDiceEnabled: (diceEnabled) => set({ diceEnabled }),
 
     // Complex actions
     updatePlayerScore: (player, category, value) => {

@@ -12,7 +12,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useMobile } from "@/hooks/use-mobile";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import ScoreInput from "@/components/score-input";
 import { useGameStore } from "@/providers/game-store-provider";
 import { Undo, Redo } from "lucide-react";
@@ -28,6 +28,16 @@ export type Category = {
   type: "number" | "special";
   points?: number;
 };
+
+const DICE_COUNT = 5;
+const MAX_ROLLS = 3;
+const ROLL_ANIMATION_DURATION_MS = 600;
+const ROLL_ANIMATION_INTERVAL_MS = 90;
+const RECOMMENDATION_LABEL = "Empfehlung";
+const createDiceValues = () =>
+  Array.from({ length: DICE_COUNT }, () => null);
+const createKeptDice = () => Array.from({ length: DICE_COUNT }, () => false);
+const createRollIndices = () => new Set<number>();
 
 // Define the scoring categories and their validation rules
 const categories: Category[] = [
@@ -160,6 +170,275 @@ const calculateLowerSectionTotal = (
     .reduce((sum, category) => sum + (playerScores[category.id] || 0), 0);
 };
 
+const getDiceCounts = (values: number[]) => {
+  // Index 0 is unused to align indices with die faces (1-6).
+  const counts = Array.from({ length: 7 }, () => 0);
+  values.forEach((value) => {
+    if (value < 1 || value > 6) {
+      console.warn("Ungültiger Würfelwert erkannt:", value);
+      return;
+    }
+    counts[value] += 1;
+  });
+  return counts;
+};
+
+const getSuggestedScore = (
+  categoryId: string,
+  diceValues: Array<number | null>,
+): string | null => {
+  if (diceValues.some((value) => value === null)) return null;
+  const values = diceValues as number[];
+  const counts = getDiceCounts(values);
+  const total = values.reduce((sum, value) => sum + value, 0);
+  const hasThreeOfAKind = counts.some((count) => count >= 3);
+  const hasFourOfAKind = counts.some((count) => count >= 4);
+  const hasKniffel = counts.some((count) => count === 5);
+  const hasFullHouse =
+    counts.some((count) => count === 3) && counts.some((count) => count === 2);
+  const uniqueValues = new Set(values);
+  const smallStraightSequences = [
+    [1, 2, 3, 4],
+    [2, 3, 4, 5],
+    [3, 4, 5, 6],
+  ];
+  const hasSmallStraight = smallStraightSequences.some((sequence) =>
+    sequence.every((value) => uniqueValues.has(value)),
+  );
+  const hasLargeStraight =
+    uniqueValues.size === 5 &&
+    (uniqueValues.has(1)
+      ? [1, 2, 3, 4, 5].every((value) => uniqueValues.has(value))
+      : [2, 3, 4, 5, 6].every((value) => uniqueValues.has(value)));
+
+  switch (categoryId) {
+    case "ones":
+      return (counts[1] * 1).toString();
+    case "twos":
+      return (counts[2] * 2).toString();
+    case "threes":
+      return (counts[3] * 3).toString();
+    case "fours":
+      return (counts[4] * 4).toString();
+    case "fives":
+      return (counts[5] * 5).toString();
+    case "sixes":
+      return (counts[6] * 6).toString();
+    case "threeOfAKind":
+      return hasThreeOfAKind ? total.toString() : "0";
+    case "fourOfAKind":
+      return hasFourOfAKind ? total.toString() : "0";
+    case "chance":
+      return total.toString();
+    case "fullHouse":
+      return hasFullHouse ? "25" : "0";
+    case "smallStraight":
+      return hasSmallStraight ? "30" : "0";
+    case "largeStraight":
+      return hasLargeStraight ? "40" : "0";
+    case "kniffel":
+      return hasKniffel ? "50" : "0";
+    default:
+      return null;
+  }
+};
+
+const buildScoreSuggestions = (
+  playerScores: Record<string, number | null> | undefined,
+  diceValues: Array<number | null>,
+) => {
+  if (!playerScores) return [];
+  return categories
+    .filter((category) => playerScores[category.id] === null)
+    .map((category) => {
+      const suggested = getSuggestedScore(category.id, diceValues);
+      if (suggested === null) return null;
+      const scoreValue = Number(suggested);
+      if (!Number.isFinite(scoreValue)) return null;
+      return { name: category.name, score: scoreValue };
+    })
+    .filter(
+      (entry): entry is { name: string; score: number } => entry !== null,
+    )
+    .sort((a, b) => b.score - a.score);
+};
+
+type DiceRollerProps = {
+  diceValues: Array<number | null>;
+  onDiceChange: (dice: Array<number | null>) => void;
+  onFinalRoll: (dice: Array<number | null>) => void;
+  resetToken: number;
+  lastRollRecommendation: string | null;
+};
+
+const DiceRoller = ({
+  diceValues,
+  onDiceChange,
+  onFinalRoll,
+  resetToken,
+  lastRollRecommendation,
+}: DiceRollerProps) => {
+  const [keptDice, setKeptDice] = useState<boolean[]>(createKeptDice);
+  const [rollCount, setRollCount] = useState(0);
+  const [rollingIndices, setRollingIndices] =
+    useState<Set<number>>(createRollIndices);
+  const animationFrameId = useRef<number | null>(null);
+  const animationState = useRef<{
+    startTime: number | null;
+    lastUpdateTime: number;
+  }>({
+    startTime: null,
+    lastUpdateTime: 0,
+  });
+  const diceValuesRef = useRef(diceValues);
+
+  useEffect(() => {
+    diceValuesRef.current = diceValues;
+  }, [diceValues]);
+
+  useEffect(() => {
+    setKeptDice(createKeptDice());
+    setRollCount(0);
+    setRollingIndices(createRollIndices());
+    if (animationFrameId.current !== null) {
+      window.cancelAnimationFrame(animationFrameId.current);
+    }
+    animationFrameId.current = null;
+    animationState.current = { startTime: null, lastUpdateTime: 0 };
+  }, [resetToken]);
+
+  useEffect(() => {
+    return () => {
+      if (animationFrameId.current !== null) {
+        window.cancelAnimationFrame(animationFrameId.current);
+      }
+    };
+  }, []);
+
+  const handleRollDice = () => {
+    if (rollCount >= MAX_ROLLS) return;
+    const indicesToRoll = diceValues.reduce<number[]>((indices, _, index) => {
+      if (rollCount === 0 || !keptDice[index]) {
+        indices.push(index);
+      }
+      return indices;
+    }, []);
+    const rollValues = (values: Array<number | null>) =>
+      values.map((value, index) => {
+        if (!indicesToRoll.includes(index)) return value;
+        return Math.floor(Math.random() * 6) + 1;
+      });
+    const finalizeRoll = (finalValues: Array<number | null>) => {
+      onDiceChange(finalValues);
+      const nextRollCount = rollCount + 1;
+      setRollCount(nextRollCount);
+      setRollingIndices(createRollIndices());
+      if (nextRollCount === MAX_ROLLS) {
+        onFinalRoll(finalValues);
+      }
+    };
+    const prefersReducedMotion =
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (prefersReducedMotion) {
+      finalizeRoll(rollValues(diceValuesRef.current));
+      return;
+    }
+    setRollingIndices(new Set(indicesToRoll));
+    if (animationFrameId.current !== null) {
+      window.cancelAnimationFrame(animationFrameId.current);
+    }
+    animationState.current = { startTime: null, lastUpdateTime: 0 };
+    const step = (timestamp: number) => {
+      const state = animationState.current;
+      if (state.startTime === null) state.startTime = timestamp;
+      const elapsed = timestamp - state.startTime;
+      if (elapsed >= ROLL_ANIMATION_DURATION_MS) {
+        animationFrameId.current = null;
+        finalizeRoll(rollValues(diceValuesRef.current));
+        setRollingIndices(createRollIndices());
+        return;
+      }
+      if (timestamp - state.lastUpdateTime >= ROLL_ANIMATION_INTERVAL_MS) {
+        onDiceChange(rollValues(diceValuesRef.current));
+        state.lastUpdateTime = timestamp;
+      }
+      animationFrameId.current = window.requestAnimationFrame(step);
+    };
+    animationFrameId.current = window.requestAnimationFrame(step);
+  };
+
+  const toggleKeepDie = (index: number) => {
+    if (rollCount === 0) return;
+    setKeptDice((previousDice) =>
+      previousDice.map((keep, currentIndex) =>
+        currentIndex === index ? !keep : keep,
+      ),
+    );
+  };
+
+  return (
+    <div className="mb-4 rounded-lg border p-3">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <p className="text-sm font-medium">Würfel</p>
+          <p className="text-muted-foreground text-xs">
+            {rollCount === 0
+              ? "Erster Wurf würfelt alle 5 Würfel."
+              : `Wurf ${rollCount} von ${MAX_ROLLS}`}
+          </p>
+        </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleRollDice}
+          disabled={rollCount >= MAX_ROLLS}
+        >
+          {rollCount === 0 ? "Würfeln" : "Nochmal würfeln"}
+        </Button>
+      </div>
+      <div className="mt-3 flex flex-wrap gap-2">
+        {diceValues.map((value, index) => (
+          <Button
+            key={`dice-${index}`}
+            type="button"
+            variant={keptDice[index] ? "default" : "outline"}
+            className="size-12 text-lg font-semibold"
+            aria-pressed={keptDice[index]}
+            disabled={rollCount === 0}
+            onClick={() => toggleKeepDie(index)}
+            title={
+              rollCount === 0
+                ? "Erst würfeln"
+                : keptDice[index]
+                  ? "Zum erneuten Würfeln freigeben"
+                  : "Würfel behalten"
+            }
+          >
+            <span
+              className={
+                rollingIndices.has(index) ? "motion-safe:animate-pulse" : ""
+              }
+            >
+              {value ?? "-"}
+            </span>
+          </Button>
+        ))}
+      </div>
+      <p className="text-muted-foreground mt-2 text-xs">
+        {rollCount >= MAX_ROLLS
+          ? "Keine Würfe mehr verfügbar."
+          : "Tippe auf einen Würfel, um ihn für den nächsten Wurf zu behalten oder erneut zu würfeln."}
+      </p>
+      {rollCount >= MAX_ROLLS && lastRollRecommendation && (
+        <p className="text-muted-foreground mt-1 text-xs">
+          {lastRollRecommendation}
+        </p>
+      )}
+    </div>
+  );
+};
+
 export default function GameBoard() {
   const {
     players,
@@ -173,6 +452,7 @@ export default function GameBoard() {
     undoneMove,
     undoLastMove,
     redoLastMove,
+    diceEnabled,
   } = useGameStore((state) => state);
 
   const [error, setError] = useState("");
@@ -181,6 +461,14 @@ export default function GameBoard() {
   const [totals, setTotals] = useState<Record<string, number>>({});
   const isMobile = useMobile();
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [diceValues, setDiceValues] = useState<Array<number | null>>(
+    createDiceValues,
+  );
+  const [finalDiceValues, setFinalDiceValues] = useState<Array<number | null>>(
+    createDiceValues,
+  );
+  const [diceResetToken, setDiceResetToken] = useState(0);
+  const lastStoredDiceKey = useRef<string | null>(null);
 
   // Initialize scores
   useEffect(() => {
@@ -198,6 +486,34 @@ export default function GameBoard() {
     setScores(initialScores);
     setTotals(initialTotals);
   }, [players, setScores]);
+
+  const hasAllDice = useMemo(
+    () => finalDiceValues.every((value) => value !== null),
+    [finalDiceValues],
+  );
+  const diceTotal = useMemo(
+    () =>
+      finalDiceValues.reduce<number>((sum, value) => sum + (value ?? 0), 0),
+    [finalDiceValues],
+  );
+  const scoreSuggestions = useMemo(() => {
+    if (!diceEnabled || !hasAllDice) return [];
+    const currentPlayer = players[currentPlayerIndex];
+    return buildScoreSuggestions(scores[currentPlayer], finalDiceValues);
+  }, [diceEnabled, finalDiceValues, hasAllDice, players, currentPlayerIndex, scores]);
+  useEffect(() => {
+    if (!hasAllDice) return;
+    const diceKey = finalDiceValues.join(",");
+    if (lastStoredDiceKey.current === diceKey) return;
+    lastStoredDiceKey.current = diceKey;
+  }, [finalDiceValues, hasAllDice]);
+  const lastRollRecommendation = useMemo(() => {
+    if (!hasAllDice || scoreSuggestions.length === 0) return null;
+    const topSuggestions = scoreSuggestions.slice(0, 3);
+    return `${RECOMMENDATION_LABEL}: ${topSuggestions
+      .map((entry) => `${entry.name} (${entry.score})`)
+      .join(" · ")}`;
+  }, [hasAllDice, scoreSuggestions]);
 
   useEffect(() => {
     // Recalculate totals whenever scores change (including after undo/redo)
@@ -228,8 +544,13 @@ export default function GameBoard() {
       return;
     }
 
+    const categoryObj = categories.find((c) => c.id === category);
+    const suggestedScore =
+      diceEnabled && hasAllDice && categoryObj
+        ? getSuggestedScore(categoryObj.id, finalDiceValues)
+        : null;
     setCurrentCategory(category);
-    setInputValue("");
+    setInputValue(suggestedScore ?? "");
     setError("");
 
     setDialogOpen(true);
@@ -282,6 +603,9 @@ export default function GameBoard() {
     setError("");
 
     setDialogOpen(false);
+    setDiceValues(createDiceValues());
+    setFinalDiceValues(createDiceValues());
+    setDiceResetToken((token) => token + 1);
 
     // Check if game is over
     const isGameOver = players.every((player) =>
@@ -393,6 +717,16 @@ export default function GameBoard() {
               </DialogFooter>
             </DialogContent>
           </Dialog>
+        )}
+
+        {diceEnabled && (
+          <DiceRoller
+            diceValues={diceValues}
+            onDiceChange={setDiceValues}
+            onFinalRoll={setFinalDiceValues}
+            resetToken={diceResetToken}
+            lastRollRecommendation={lastRollRecommendation}
+          />
         )}
 
         <ScoreCard

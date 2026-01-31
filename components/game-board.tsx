@@ -12,7 +12,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useMobile } from "@/hooks/use-mobile";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import ScoreInput from "@/components/score-input";
 import { useGameStore } from "@/providers/game-store-provider";
 import { Undo, Redo } from "lucide-react";
@@ -33,6 +33,7 @@ const DICE_COUNT = 5;
 const MAX_ROLLS = 3;
 const ROLL_ANIMATION_DURATION_MS = 600;
 const ROLL_ANIMATION_INTERVAL_MS = 90;
+const RECOMMENDATION_LABEL = "Empfehlung";
 const createDiceValues = () =>
   Array.from({ length: DICE_COUNT }, () => null);
 const createKeptDice = () => Array.from({ length: DICE_COUNT }, () => false);
@@ -263,12 +264,34 @@ const DiceRoller = ({
   const [rollCount, setRollCount] = useState(0);
   const [rollingIndices, setRollingIndices] =
     useState<Set<number>>(createRollIndices);
+  const animationTimers = useRef<{
+    intervalId: number | null;
+    timeoutId: number | null;
+  }>({ intervalId: null, timeoutId: null });
 
   useEffect(() => {
     setKeptDice(createKeptDice());
     setRollCount(0);
     setRollingIndices(createRollIndices());
+    if (animationTimers.current.intervalId !== null) {
+      window.clearInterval(animationTimers.current.intervalId);
+    }
+    if (animationTimers.current.timeoutId !== null) {
+      window.clearTimeout(animationTimers.current.timeoutId);
+    }
+    animationTimers.current = { intervalId: null, timeoutId: null };
   }, [resetToken]);
+
+  useEffect(() => {
+    return () => {
+      if (animationTimers.current.intervalId !== null) {
+        window.clearInterval(animationTimers.current.intervalId);
+      }
+      if (animationTimers.current.timeoutId !== null) {
+        window.clearTimeout(animationTimers.current.timeoutId);
+      }
+    };
+  }, []);
 
   const handleRollDice = () => {
     if (rollCount >= MAX_ROLLS) return;
@@ -301,16 +324,25 @@ const DiceRoller = ({
       return;
     }
     setRollingIndices(new Set(indicesToRoll));
+    if (animationTimers.current.intervalId !== null) {
+      window.clearInterval(animationTimers.current.intervalId);
+    }
+    if (animationTimers.current.timeoutId !== null) {
+      window.clearTimeout(animationTimers.current.timeoutId);
+    }
     const intervalId = window.setInterval(() => {
       onDiceChange(
-        baseValues.map((value, index) => {
+        diceValues.map((value, index) => {
           if (!indicesToRoll.includes(index)) return value;
           return Math.floor(Math.random() * 6) + 1;
         }),
       );
     }, ROLL_ANIMATION_INTERVAL_MS);
-    window.setTimeout(() => {
+    animationTimers.current.intervalId = intervalId;
+    animationTimers.current.timeoutId = window.setTimeout(() => {
       window.clearInterval(intervalId);
+      animationTimers.current.intervalId = null;
+      animationTimers.current.timeoutId = null;
       finalizeRoll(rollValues());
     }, ROLL_ANIMATION_DURATION_MS);
   };
@@ -492,7 +524,7 @@ export default function GameBoard() {
   const lastRollRecommendation = useMemo(() => {
     if (!hasAllDice || scoreSuggestions.length === 0) return null;
     const topSuggestions = scoreSuggestions.slice(0, 3);
-    return `Empfehlung: ${topSuggestions
+    return `${RECOMMENDATION_LABEL}: ${topSuggestions
       .map((entry) => `${entry.name} (${entry.score})`)
       .join(" · ")}`;
   }, [hasAllDice, scoreSuggestions]);

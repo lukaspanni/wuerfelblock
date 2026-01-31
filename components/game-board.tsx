@@ -31,6 +31,8 @@ export type Category = {
 
 const DICE_COUNT = 5;
 const MAX_ROLLS = 3;
+const ROLL_ANIMATION_DURATION_MS = 600;
+const ROLL_ANIMATION_INTERVAL_MS = 90;
 const createDiceValues = () =>
   Array.from({ length: DICE_COUNT }, () => null);
 const createKeptDice = () => Array.from({ length: DICE_COUNT }, () => false);
@@ -246,6 +248,7 @@ type DiceRollerProps = {
   onFinalRoll: (dice: Array<number | null>) => void;
   resetToken: number;
   lastRollSummary: string | null;
+  lastRollRecommendation: string | null;
 };
 
 const DiceRoller = ({
@@ -254,6 +257,7 @@ const DiceRoller = ({
   onFinalRoll,
   resetToken,
   lastRollSummary,
+  lastRollRecommendation,
 }: DiceRollerProps) => {
   const [keptDice, setKeptDice] = useState<boolean[]>(createKeptDice);
   const [rollCount, setRollCount] = useState(0);
@@ -274,17 +278,41 @@ const DiceRoller = ({
       }
       return indices;
     }, []);
-    setRollingIndices(new Set(indicesToRoll));
-    const nextValues = diceValues.map((value, index) => {
-      if (!indicesToRoll.includes(index)) return value;
-      return Math.floor(Math.random() * 6) + 1;
-    });
-    onDiceChange(nextValues);
-    const nextRollCount = rollCount + 1;
-    setRollCount(nextRollCount);
-    if (nextRollCount === MAX_ROLLS) {
-      onFinalRoll(nextValues);
+    const baseValues = diceValues;
+    const rollValues = () =>
+      baseValues.map((value, index) => {
+        if (!indicesToRoll.includes(index)) return value;
+        return Math.floor(Math.random() * 6) + 1;
+      });
+    const finalizeRoll = (finalValues: Array<number | null>) => {
+      onDiceChange(finalValues);
+      const nextRollCount = rollCount + 1;
+      setRollCount(nextRollCount);
+      setRollingIndices(createRollIndices());
+      if (nextRollCount === MAX_ROLLS) {
+        onFinalRoll(finalValues);
+      }
+    };
+    const prefersReducedMotion =
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (prefersReducedMotion) {
+      finalizeRoll(rollValues());
+      return;
     }
+    setRollingIndices(new Set(indicesToRoll));
+    const intervalId = window.setInterval(() => {
+      onDiceChange(
+        baseValues.map((value, index) => {
+          if (!indicesToRoll.includes(index)) return value;
+          return Math.floor(Math.random() * 6) + 1;
+        }),
+      );
+    }, ROLL_ANIMATION_INTERVAL_MS);
+    window.setTimeout(() => {
+      window.clearInterval(intervalId);
+      finalizeRoll(rollValues());
+    }, ROLL_ANIMATION_DURATION_MS);
   };
 
   const toggleKeepDie = (index: number) => {
@@ -344,7 +372,7 @@ const DiceRoller = ({
           >
             <span
               className={
-                rollingIndices.has(index) ? "motion-safe:animate-spin" : ""
+                rollingIndices.has(index) ? "opacity-70" : ""
               }
             >
               {value ?? "-"}
@@ -363,6 +391,11 @@ const DiceRoller = ({
           aria-live="polite"
         >
           {lastRollSummary}
+        </p>
+      )}
+      {rollCount >= MAX_ROLLS && lastRollRecommendation && (
+        <p className="text-muted-foreground mt-1 text-xs">
+          {lastRollRecommendation}
         </p>
       )}
     </div>
@@ -432,6 +465,37 @@ export default function GameBoard() {
         : null,
     [diceTotal, finalDiceValues, hasAllDice],
   );
+  const scoreSuggestions = useMemo(() => {
+    if (!diceEnabled || !hasAllDice) return [];
+    const currentPlayer = players[currentPlayerIndex];
+    return categories
+      .filter((category) => scores[currentPlayer]?.[category.id] === null)
+      .map((category) => {
+        const suggested = getSuggestedScore(category.id, finalDiceValues);
+        if (suggested === null) return null;
+        const scoreValue = Number(suggested);
+        if (!Number.isFinite(scoreValue)) return null;
+        return { name: category.name, score: scoreValue };
+      })
+      .filter(
+        (entry): entry is { name: string; score: number } => entry !== null,
+      )
+      .sort((a, b) => b.score - a.score);
+  }, [
+    diceEnabled,
+    finalDiceValues,
+    hasAllDice,
+    players,
+    currentPlayerIndex,
+    scores,
+  ]);
+  const lastRollRecommendation = useMemo(() => {
+    if (!hasAllDice || scoreSuggestions.length === 0) return null;
+    const topSuggestions = scoreSuggestions.slice(0, 3);
+    return `Empfehlung: ${topSuggestions
+      .map((entry) => `${entry.name} (${entry.score})`)
+      .join(" · ")}`;
+  }, [hasAllDice, scoreSuggestions]);
 
   useEffect(() => {
     // Recalculate totals whenever scores change (including after undo/redo)
@@ -644,6 +708,7 @@ export default function GameBoard() {
             onFinalRoll={setFinalDiceValues}
             resetToken={diceResetToken}
             lastRollSummary={lastRollSummary}
+            lastRollRecommendation={lastRollRecommendation}
           />
         )}
 

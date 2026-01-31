@@ -324,7 +324,6 @@ const DiceRoller = ({
     let startTime: number | null = null;
     let lastTick = 0;
     const step = (timestamp: number) => {
-      if (animationFrameId.current === null) return;
       if (startTime === null) startTime = timestamp;
       const elapsed = timestamp - startTime;
       if (elapsed >= ROLL_ANIMATION_DURATION_MS) {
@@ -337,7 +336,6 @@ const DiceRoller = ({
         onDiceChange(rollValues(diceValuesRef.current));
         lastTick = timestamp;
       }
-      if (animationFrameId.current === null) return;
       animationFrameId.current = window.requestAnimationFrame(step);
     };
     animationFrameId.current = window.requestAnimationFrame(step);

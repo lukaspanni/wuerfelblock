@@ -324,6 +324,7 @@ const DiceRoller = ({
     let startTime: number | null = null;
     let lastTick = 0;
     const step = (timestamp: number) => {
+      if (animationFrameId.current === null) return;
       if (startTime === null) startTime = timestamp;
       const elapsed = timestamp - startTime;
       if (elapsed >= ROLL_ANIMATION_DURATION_MS) {
@@ -389,7 +390,7 @@ const DiceRoller = ({
           >
             <span
               className={
-                rollingIndices.has(index) ? "animate-pulse" : ""
+                rollingIndices.has(index) ? "motion-safe:animate-pulse" : ""
               }
             >
               {value ?? "-"}

@@ -477,7 +477,7 @@ export default function GameBoard() {
     [finalDiceValues],
   );
   const freshSuggestions = useMemo(() => {
-    if (!diceEnabled || !hasAllDice) return null;
+    if (!diceEnabled || !hasAllDice) return [];
     const currentPlayer = players[currentPlayerIndex];
     return categories
       .filter((category) => scores[currentPlayer]?.[category.id] === null)
@@ -493,14 +493,15 @@ export default function GameBoard() {
       )
       .sort((a, b) => b.score - a.score);
   }, [diceEnabled, finalDiceValues, hasAllDice, players, currentPlayerIndex, scores]);
-  const scoreSuggestions = freshSuggestions ?? storedSuggestions;
+  const scoreSuggestions =
+    freshSuggestions.length > 0 ? freshSuggestions : storedSuggestions;
   useEffect(() => {
-    if (!freshSuggestions) return;
+    if (freshSuggestions.length === 0) return;
     const diceKey = finalDiceValues.join(",");
     if (lastStoredDiceKey.current === diceKey) return;
     lastStoredDiceKey.current = diceKey;
     setStoredSuggestions(freshSuggestions);
-  }, [finalDiceValues, freshSuggestions]);
+  }, [freshSuggestions]);
   const lastRollRecommendation = useMemo(() => {
     if (!hasAllDice || scoreSuggestions.length === 0) return null;
     const topSuggestions = scoreSuggestions.slice(0, 3);

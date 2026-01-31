@@ -14,6 +14,7 @@ import { z } from "zod";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 
 const statsSchema = z.record(z.string(), z.number());
+const diceEnabledSchema = z.boolean();
 
 export default function Scorekeeper() {
   const {
@@ -24,6 +25,8 @@ export default function Scorekeeper() {
     startGame,
     finalScores,
     resetGame,
+    diceEnabled,
+    setDiceEnabled,
   } = useGameStore((state) => state);
 
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
@@ -39,6 +42,16 @@ export default function Scorekeeper() {
       setGameState("history-stats");
     }
   }, [setStats, setGameState]);
+
+  useEffect(() => {
+    const { ok, result } = loadFromLocalStorage(
+      "wuerfelblock-dice-enabled",
+      diceEnabledSchema,
+    );
+    if (ok) {
+      setDiceEnabled(result);
+    }
+  }, [setDiceEnabled]);
 
   // Warn if leaving while game is running
   useEffect(() => {
@@ -63,6 +76,10 @@ export default function Scorekeeper() {
       saveToLocalStorage("wuerfelblock-stats", stats);
     }
   }, [stats]);
+
+  useEffect(() => {
+    saveToLocalStorage("wuerfelblock-dice-enabled", diceEnabled);
+  }, [diceEnabled]);
 
   const handleStartGameClick = () => {
     setGameState("game-init");

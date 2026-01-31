@@ -34,6 +34,7 @@ const MAX_ROLLS = 3;
 const createDiceValues = () =>
   Array.from({ length: DICE_COUNT }, () => null);
 const createKeptDice = () => Array.from({ length: DICE_COUNT }, () => false);
+const createRollIndices = () => new Set<number>();
 
 // Define the scoring categories and their validation rules
 const categories: Category[] = [
@@ -166,18 +167,103 @@ const calculateLowerSectionTotal = (
     .reduce((sum, category) => sum + (playerScores[category.id] || 0), 0);
 };
 
-const DiceRoller = () => {
+const getDiceCounts = (values: number[]) => {
+  const counts = Array.from({ length: 7 }, () => 0);
+  values.forEach((value) => {
+    counts[value] += 1;
+  });
+  return counts;
+};
+
+const getSuggestedScore = (
+  categoryId: string,
+  diceValues: Array<number | null>,
+): string | null => {
+  if (diceValues.some((value) => value === null)) return null;
+  const values = diceValues as number[];
+  const counts = getDiceCounts(values);
+  const total = values.reduce((sum, value) => sum + value, 0);
+  const hasThreeOfAKind = counts.some((count) => count >= 3);
+  const hasFourOfAKind = counts.some((count) => count >= 4);
+  const hasKniffel = counts.some((count) => count === 5);
+  const hasFullHouse =
+    counts.some((count) => count === 3) && counts.some((count) => count === 2);
+  const uniqueValues = new Set(values);
+  const smallStraightSequences = [
+    [1, 2, 3, 4],
+    [2, 3, 4, 5],
+    [3, 4, 5, 6],
+  ];
+  const hasSmallStraight = smallStraightSequences.some((sequence) =>
+    sequence.every((value) => uniqueValues.has(value)),
+  );
+  const hasLargeStraight =
+    uniqueValues.size === 5 &&
+    (uniqueValues.has(1)
+      ? [1, 2, 3, 4, 5].every((value) => uniqueValues.has(value))
+      : [2, 3, 4, 5, 6].every((value) => uniqueValues.has(value)));
+
+  switch (categoryId) {
+    case "ones":
+      return (counts[1] * 1).toString();
+    case "twos":
+      return (counts[2] * 2).toString();
+    case "threes":
+      return (counts[3] * 3).toString();
+    case "fours":
+      return (counts[4] * 4).toString();
+    case "fives":
+      return (counts[5] * 5).toString();
+    case "sixes":
+      return (counts[6] * 6).toString();
+    case "threeOfAKind":
+      return hasThreeOfAKind ? total.toString() : "0";
+    case "fourOfAKind":
+      return hasFourOfAKind ? total.toString() : "0";
+    case "chance":
+      return total.toString();
+    case "fullHouse":
+      return hasFullHouse ? "25" : "0";
+    case "smallStraight":
+      return hasSmallStraight ? "30" : "0";
+    case "largeStraight":
+      return hasLargeStraight ? "40" : "0";
+    case "kniffel":
+      return hasKniffel ? "50" : "0";
+    default:
+      return null;
+  }
+};
+
+type DiceRollerProps = {
+  onDiceChange: (dice: Array<number | null>) => void;
+  lastRollSummary: string | null;
+};
+
+const DiceRoller = ({ onDiceChange, lastRollSummary }: DiceRollerProps) => {
   const [diceValues, setDiceValues] =
     useState<Array<number | null>>(createDiceValues);
   const [keptDice, setKeptDice] = useState<boolean[]>(createKeptDice);
   const [rollCount, setRollCount] = useState(0);
+  const [rollingIndices, setRollingIndices] =
+    useState<Set<number>>(createRollIndices);
+
+  useEffect(() => {
+    onDiceChange(diceValues);
+  }, [diceValues, onDiceChange]);
 
   const handleRollDice = () => {
     if (rollCount >= MAX_ROLLS) return;
+    const indicesToRoll = diceValues.reduce<number[]>((indices, _, index) => {
+      if (rollCount === 0 || !keptDice[index]) {
+        indices.push(index);
+      }
+      return indices;
+    }, []);
+    setRollingIndices(new Set(indicesToRoll));
     setDiceValues((previousValues) =>
       previousValues.map((value, index) => {
-        const shouldRoll = rollCount === 0 || !keptDice[index];
-        if (!shouldRoll) return value;
+        if (!indicesToRoll.includes(index)) return value;
         return Math.floor(Math.random() * 6) + 1;
       }),
     );
@@ -192,6 +278,14 @@ const DiceRoller = () => {
       ),
     );
   };
+
+  useEffect(() => {
+    if (rollingIndices.size === 0) return;
+    const timer = window.setTimeout(() => {
+      setRollingIndices(createRollIndices());
+    }, 400);
+    return () => window.clearTimeout(timer);
+  }, [rollingIndices]);
 
   return (
     <div className="mb-4 rounded-lg border p-3">
@@ -220,6 +314,7 @@ const DiceRoller = () => {
             type="button"
             variant={keptDice[index] ? "default" : "outline"}
             className="size-12 text-lg font-semibold"
+            aria-label={`Würfel ${index + 1}: ${value ?? "noch nicht geworfen"}`}
             aria-pressed={keptDice[index]}
             disabled={rollCount === 0}
             onClick={() => toggleKeepDie(index)}
@@ -231,7 +326,11 @@ const DiceRoller = () => {
                   : "Würfel behalten"
             }
           >
-            {value ?? "-"}
+            <span
+              className={rollingIndices.has(index) ? "animate-spin" : ""}
+            >
+              {value ?? "-"}
+            </span>
           </Button>
         ))}
       </div>
@@ -240,6 +339,11 @@ const DiceRoller = () => {
           ? "Keine Würfe mehr verfügbar."
           : "Tippe auf einen Würfel, um ihn für den nächsten Wurf zu behalten oder erneut zu würfeln."}
       </p>
+      {rollCount >= MAX_ROLLS && lastRollSummary && (
+        <p className="text-muted-foreground mt-1 text-xs">
+          {lastRollSummary}
+        </p>
+      )}
     </div>
   );
 };
@@ -266,6 +370,9 @@ export default function GameBoard() {
   const [totals, setTotals] = useState<Record<string, number>>({});
   const isMobile = useMobile();
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [diceValues, setDiceValues] = useState<Array<number | null>>(
+    createDiceValues,
+  );
 
   // Initialize scores
   useEffect(() => {
@@ -283,6 +390,15 @@ export default function GameBoard() {
     setScores(initialScores);
     setTotals(initialTotals);
   }, [players, setScores]);
+
+  const hasAllDice = diceValues.every((value) => value !== null);
+  const diceTotal = diceValues.reduce<number>(
+    (sum, value) => sum + (value ?? 0),
+    0,
+  );
+  const lastRollSummary = hasAllDice
+    ? `Letzter Wurf: ${diceValues.join(", ")} (Summe ${diceTotal}). Trage jetzt eine Kategorie ein.`
+    : null;
 
   useEffect(() => {
     // Recalculate totals whenever scores change (including after undo/redo)
@@ -313,8 +429,12 @@ export default function GameBoard() {
       return;
     }
 
+    const categoryObj = categories.find((c) => c.id === category);
+    const suggestedScore = categoryObj
+      ? getSuggestedScore(categoryObj.id, diceValues)
+      : null;
     setCurrentCategory(category);
-    setInputValue("");
+    setInputValue(suggestedScore ?? "");
     setError("");
 
     setDialogOpen(true);
@@ -367,6 +487,7 @@ export default function GameBoard() {
     setError("");
 
     setDialogOpen(false);
+    setDiceValues(createDiceValues());
 
     // Check if game is over
     const isGameOver = players.every((player) =>
@@ -480,7 +601,12 @@ export default function GameBoard() {
           </Dialog>
         )}
 
-        {diceEnabled && <DiceRoller key={currentPlayerIndex} />}
+        {diceEnabled && (
+          <DiceRoller
+            onDiceChange={setDiceValues}
+            lastRollSummary={lastRollSummary}
+          />
+        )}
 
         <ScoreCard
           players={players}

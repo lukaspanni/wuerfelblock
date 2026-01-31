@@ -32,7 +32,7 @@ export const Header = () => {
           <DropdownMenuSeparator />
           <DropdownMenuCheckboxItem
             checked={diceEnabled}
-            onCheckedChange={(checked) => setDiceEnabled(Boolean(checked))}
+            onCheckedChange={setDiceEnabled}
           >
             Würfel aktivieren
           </DropdownMenuCheckboxItem>

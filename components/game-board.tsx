@@ -12,7 +12,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useMobile } from "@/hooks/use-mobile";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import ScoreInput from "@/components/score-input";
 import { useGameStore } from "@/providers/game-store-provider";
 import { Undo, Redo } from "lucide-react";
@@ -236,21 +236,20 @@ const getSuggestedScore = (
 };
 
 type DiceRollerProps = {
+  diceValues: Array<number | null>;
   onDiceChange: (dice: Array<number | null>) => void;
   lastRollSummary: string | null;
 };
 
-const DiceRoller = ({ onDiceChange, lastRollSummary }: DiceRollerProps) => {
-  const [diceValues, setDiceValues] =
-    useState<Array<number | null>>(createDiceValues);
+const DiceRoller = ({
+  diceValues,
+  onDiceChange,
+  lastRollSummary,
+}: DiceRollerProps) => {
   const [keptDice, setKeptDice] = useState<boolean[]>(createKeptDice);
   const [rollCount, setRollCount] = useState(0);
   const [rollingIndices, setRollingIndices] =
     useState<Set<number>>(createRollIndices);
-
-  useEffect(() => {
-    onDiceChange(diceValues);
-  }, [diceValues, onDiceChange]);
 
   const handleRollDice = () => {
     if (rollCount >= MAX_ROLLS) return;
@@ -261,8 +260,8 @@ const DiceRoller = ({ onDiceChange, lastRollSummary }: DiceRollerProps) => {
       return indices;
     }, []);
     setRollingIndices(new Set(indicesToRoll));
-    setDiceValues((previousValues) =>
-      previousValues.map((value, index) => {
+    onDiceChange(
+      diceValues.map((value, index) => {
         if (!indicesToRoll.includes(index)) return value;
         return Math.floor(Math.random() * 6) + 1;
       }),
@@ -327,7 +326,9 @@ const DiceRoller = ({ onDiceChange, lastRollSummary }: DiceRollerProps) => {
             }
           >
             <span
-              className={rollingIndices.has(index) ? "animate-spin" : ""}
+              className={
+                rollingIndices.has(index) ? "motion-safe:animate-spin" : ""
+              }
             >
               {value ?? "-"}
             </span>
@@ -391,14 +392,22 @@ export default function GameBoard() {
     setTotals(initialTotals);
   }, [players, setScores]);
 
-  const hasAllDice = diceValues.every((value) => value !== null);
-  const diceTotal = diceValues.reduce<number>(
-    (sum, value) => sum + (value ?? 0),
-    0,
+  const hasAllDice = useMemo(
+    () => diceValues.every((value) => value !== null),
+    [diceValues],
   );
-  const lastRollSummary = hasAllDice
-    ? `Letzter Wurf: ${diceValues.join(", ")} (Summe ${diceTotal}). Trage jetzt eine Kategorie ein.`
-    : null;
+  const diceTotal = useMemo(
+    () =>
+      diceValues.reduce<number>((sum, value) => sum + (value ?? 0), 0),
+    [diceValues],
+  );
+  const lastRollSummary = useMemo(
+    () =>
+      hasAllDice
+        ? `Letzter Wurf: ${diceValues.join(", ")} (Summe ${diceTotal}). Trage jetzt eine Kategorie ein.`
+        : null,
+    [diceTotal, diceValues, hasAllDice],
+  );
 
   useEffect(() => {
     // Recalculate totals whenever scores change (including after undo/redo)
@@ -603,6 +612,7 @@ export default function GameBoard() {
 
         {diceEnabled && (
           <DiceRoller
+            diceValues={diceValues}
             onDiceChange={setDiceValues}
             lastRollSummary={lastRollSummary}
           />

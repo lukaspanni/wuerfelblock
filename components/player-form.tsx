@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { loadFromLocalStorage, saveToLocalStorage } from "@/lib/local-storage";
 import { X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { z } from "zod";
 
 const lastGamePlayersSchema = z.array(z.string());
@@ -20,19 +20,13 @@ interface PlayerFormProps {
 export default function PlayerForm({ onStartGame }: PlayerFormProps) {
   const [players, setPlayers] = useState<string[]>(["", "", ""]);
   const [error, setError] = useState("");
-  const [hasLastGame, setHasLastGame] = useState(false);
-
-  useEffect(() => {
+  const [hasLastGame] = useState(() => {
     const { ok, result } = loadFromLocalStorage(
       "lastGamePlayers",
       lastGamePlayersSchema,
     );
-    if (ok && result) {
-      setHasLastGame(result.length > 0);
-    } else {
-      setHasLastGame(false);
-    }
-  }, []);
+    return ok && result ? result.length > 0 : false;
+  });
 
   const addPlayer = () => {
     setPlayers([...players, ""]);
@@ -65,7 +59,6 @@ export default function PlayerForm({ onStartGame }: PlayerFormProps) {
 
     // Save current valid players for quick start
     saveToLocalStorage("lastGamePlayers", validPlayers);
-    setHasLastGame(true);
     onStartGame(validPlayers);
   };
 

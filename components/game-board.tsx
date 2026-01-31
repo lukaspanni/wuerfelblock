@@ -267,7 +267,6 @@ type DiceRollerProps = {
   diceValues: Array<number | null>;
   onDiceChange: (dice: Array<number | null>) => void;
   onFinalRoll: (dice: Array<number | null>) => void;
-  resetToken: number;
   lastRollRecommendation: string | null;
 };
 
@@ -275,7 +274,6 @@ const DiceRoller = ({
   diceValues,
   onDiceChange,
   onFinalRoll,
-  resetToken,
   lastRollRecommendation,
 }: DiceRollerProps) => {
   const [keptDice, setKeptDice] = useState<boolean[]>(createKeptDice);
@@ -295,17 +293,6 @@ const DiceRoller = ({
   useEffect(() => {
     diceValuesRef.current = diceValues;
   }, [diceValues]);
-
-  useEffect(() => {
-    setKeptDice(createKeptDice());
-    setRollCount(0);
-    setRollingIndices(createRollIndices());
-    if (animationFrameId.current !== null) {
-      window.cancelAnimationFrame(animationFrameId.current);
-    }
-    animationFrameId.current = null;
-    animationState.current = { startTime: null, lastUpdateTime: 0 };
-  }, [resetToken]);
 
   useEffect(() => {
     return () => {
@@ -351,7 +338,7 @@ const DiceRoller = ({
     animationState.current = { startTime: null, lastUpdateTime: 0 };
     const step = (timestamp: number) => {
       const state = animationState.current;
-      if (state.startTime === null) state.startTime ??= timestamp;
+      state.startTime ??= timestamp;
       const elapsed = timestamp - state.startTime;
       if (elapsed >= ROLL_ANIMATION_DURATION_MS) {
         animationFrameId.current = null;
@@ -458,7 +445,6 @@ export default function GameBoard() {
   const [error, setError] = useState("");
   const [inputValue, setInputValue] = useState("");
   const [currentCategory, setCurrentCategory] = useState<string | null>(null);
-  const [totals, setTotals] = useState<Record<string, number>>({});
   const isMobile = useMobile();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [diceValues, setDiceValues] = useState<Array<number | null>>(
@@ -470,21 +456,28 @@ export default function GameBoard() {
   const [diceResetToken, setDiceResetToken] = useState(0);
   const lastStoredDiceKey = useRef<string | null>(null);
 
-  // Initialize scores
+  // Initialize scores when players change
   useEffect(() => {
-    const initialScores: Record<string, Record<string, number | null>> = {};
-    const initialTotals: Record<string, number> = {};
+    const updatedScores = { ...scores };
+    let hasChanges = false;
 
     players.forEach((player) => {
-      initialScores[player] = {};
+      if (!updatedScores[player]) {
+        updatedScores[player] = {};
+        hasChanges = true;
+      }
       categories.forEach((category) => {
-        initialScores[player][category.id] = null;
+        if (!(category.id in updatedScores[player])) {
+          updatedScores[player][category.id] = null;
+          hasChanges = true;
+        }
       });
-      initialTotals[player] = 0;
     });
 
-    setScores(initialScores);
-    setTotals(initialTotals);
+    if (hasChanges) {
+      setScores(updatedScores);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [players, setScores]);
 
   const hasAllDice = useMemo(
@@ -515,7 +508,7 @@ export default function GameBoard() {
       .join(" · ")}`;
   }, [hasAllDice, scoreSuggestions]);
 
-  useEffect(() => {
+  const totals = useMemo(() => {
     // Recalculate totals whenever scores change (including after undo/redo)
     const updatedTotals: Record<string, number> = {};
 
@@ -532,7 +525,7 @@ export default function GameBoard() {
       }
     });
 
-    setTotals(updatedTotals);
+    return updatedTotals;
   }, [scores, players]);
 
   const handleScoreSelect = (category: string) => {
@@ -585,17 +578,6 @@ export default function GameBoard() {
       value,
     );
 
-    // Use the updated scores to calculate totals
-    const updatedPlayerScores = updatedScores[currentPlayer];
-    const upperTotal = calculateUpperSectionTotal(updatedPlayerScores);
-    const bonus = calculateBonus(upperTotal);
-    const lowerTotal = calculateLowerSectionTotal(updatedPlayerScores);
-
-    // Update totals with bonus
-    const newTotals = { ...totals };
-    newTotals[currentPlayer] = upperTotal + bonus + lowerTotal;
-    setTotals(newTotals);
-
     // Move to next player
     nextPlayer();
     setCurrentCategory(null);
@@ -615,7 +597,16 @@ export default function GameBoard() {
     );
 
     if (isGameOver) {
-      endGame(newTotals);
+      // Calculate final totals
+      const finalTotals: Record<string, number> = {};
+      players.forEach((player) => {
+        const playerScores = updatedScores[player];
+        const upperTotal = calculateUpperSectionTotal(playerScores);
+        const bonus = calculateBonus(upperTotal);
+        const lowerTotal = calculateLowerSectionTotal(playerScores);
+        finalTotals[player] = upperTotal + bonus + lowerTotal;
+      });
+      endGame(finalTotals);
     }
   };
 
@@ -721,10 +712,10 @@ export default function GameBoard() {
 
         {diceEnabled && (
           <DiceRoller
+            key={diceResetToken}
             diceValues={diceValues}
             onDiceChange={setDiceValues}
             onFinalRoll={setFinalDiceValues}
-            resetToken={diceResetToken}
             lastRollRecommendation={lastRollRecommendation}
           />
         )}

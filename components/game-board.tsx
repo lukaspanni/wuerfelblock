@@ -248,7 +248,6 @@ type DiceRollerProps = {
   onDiceChange: (dice: Array<number | null>) => void;
   onFinalRoll: (dice: Array<number | null>) => void;
   resetToken: number;
-  lastRollSummary: string | null;
   lastRollRecommendation: string | null;
 };
 
@@ -257,17 +256,13 @@ const DiceRoller = ({
   onDiceChange,
   onFinalRoll,
   resetToken,
-  lastRollSummary,
   lastRollRecommendation,
 }: DiceRollerProps) => {
   const [keptDice, setKeptDice] = useState<boolean[]>(createKeptDice);
   const [rollCount, setRollCount] = useState(0);
   const [rollingIndices, setRollingIndices] =
     useState<Set<number>>(createRollIndices);
-  const animationTimers = useRef<{
-    intervalId: number | null;
-    timeoutId: number | null;
-  }>({ intervalId: null, timeoutId: null });
+  const animationFrameId = useRef<number | null>(null);
   const diceValuesRef = useRef(diceValues);
 
   useEffect(() => {
@@ -278,22 +273,16 @@ const DiceRoller = ({
     setKeptDice(createKeptDice());
     setRollCount(0);
     setRollingIndices(createRollIndices());
-    if (animationTimers.current.intervalId !== null) {
-      window.clearInterval(animationTimers.current.intervalId);
+    if (animationFrameId.current !== null) {
+      window.cancelAnimationFrame(animationFrameId.current);
     }
-    if (animationTimers.current.timeoutId !== null) {
-      window.clearTimeout(animationTimers.current.timeoutId);
-    }
-    animationTimers.current = { intervalId: null, timeoutId: null };
+    animationFrameId.current = null;
   }, [resetToken]);
 
   useEffect(() => {
     return () => {
-      if (animationTimers.current.intervalId !== null) {
-        window.clearInterval(animationTimers.current.intervalId);
-      }
-      if (animationTimers.current.timeoutId !== null) {
-        window.clearTimeout(animationTimers.current.timeoutId);
+      if (animationFrameId.current !== null) {
+        window.cancelAnimationFrame(animationFrameId.current);
       }
     };
   }, []);
@@ -306,13 +295,13 @@ const DiceRoller = ({
       }
       return indices;
     }, []);
-    const baseValues = diceValuesRef.current;
-    const rollValues = () =>
-      baseValues.map((value, index) => {
+    const rollValues = (values: Array<number | null>) =>
+      values.map((value, index) => {
         if (!indicesToRoll.includes(index)) return value;
         return Math.floor(Math.random() * 6) + 1;
       });
-    const finalizeRoll = (finalValues: Array<number | null>) => {
+    const finalizeRoll = () => {
+      const finalValues = rollValues(diceValuesRef.current);
       onDiceChange(finalValues);
       const nextRollCount = rollCount + 1;
       setRollCount(nextRollCount);
@@ -325,31 +314,30 @@ const DiceRoller = ({
       typeof window !== "undefined" &&
       window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (prefersReducedMotion) {
-      finalizeRoll(rollValues());
+      finalizeRoll();
       return;
     }
     setRollingIndices(new Set(indicesToRoll));
-    if (animationTimers.current.intervalId !== null) {
-      window.clearInterval(animationTimers.current.intervalId);
+    if (animationFrameId.current !== null) {
+      window.cancelAnimationFrame(animationFrameId.current);
     }
-    if (animationTimers.current.timeoutId !== null) {
-      window.clearTimeout(animationTimers.current.timeoutId);
-    }
-    const intervalId = window.setInterval(() => {
-      onDiceChange(
-        diceValuesRef.current.map((value, index) => {
-          if (!indicesToRoll.includes(index)) return value;
-          return Math.floor(Math.random() * 6) + 1;
-        }),
-      );
-    }, ROLL_ANIMATION_INTERVAL_MS);
-    animationTimers.current.intervalId = intervalId;
-    animationTimers.current.timeoutId = window.setTimeout(() => {
-      window.clearInterval(intervalId);
-      animationTimers.current.intervalId = null;
-      animationTimers.current.timeoutId = null;
-      finalizeRoll(rollValues());
-    }, ROLL_ANIMATION_DURATION_MS);
+    let startTime: number | null = null;
+    let lastTick = 0;
+    const step = (timestamp: number) => {
+      if (startTime === null) startTime = timestamp;
+      const elapsed = timestamp - startTime;
+      if (elapsed >= ROLL_ANIMATION_DURATION_MS) {
+        finalizeRoll();
+        animationFrameId.current = null;
+        return;
+      }
+      if (timestamp - lastTick >= ROLL_ANIMATION_INTERVAL_MS) {
+        onDiceChange(rollValues(diceValuesRef.current));
+        lastTick = timestamp;
+      }
+      animationFrameId.current = window.requestAnimationFrame(step);
+    };
+    animationFrameId.current = window.requestAnimationFrame(step);
   };
 
   const toggleKeepDie = (index: number) => {
@@ -360,14 +348,6 @@ const DiceRoller = ({
       ),
     );
   };
-
-  useEffect(() => {
-    if (rollingIndices.size === 0) return;
-    const timer = window.setTimeout(() => {
-      setRollingIndices(createRollIndices());
-    }, 400);
-    return () => window.clearTimeout(timer);
-  }, [rollingIndices]);
 
   return (
     <div className="mb-4 rounded-lg border p-3">
@@ -409,7 +389,7 @@ const DiceRoller = ({
           >
             <span
               className={
-                rollingIndices.has(index) ? "motion-safe:animate-pulse" : ""
+                rollingIndices.has(index) ? "animate-pulse" : ""
               }
             >
               {value ?? "-"}
@@ -422,14 +402,6 @@ const DiceRoller = ({
           ? "Keine Würfe mehr verfügbar."
           : "Tippe auf einen Würfel, um ihn für den nächsten Wurf zu behalten oder erneut zu würfeln."}
       </p>
-      {rollCount >= MAX_ROLLS && lastRollSummary && (
-        <p
-          className="text-muted-foreground mt-1 text-xs"
-          aria-live="polite"
-        >
-          {lastRollSummary}
-        </p>
-      )}
       {rollCount >= MAX_ROLLS && lastRollRecommendation && (
         <p className="text-muted-foreground mt-1 text-xs">
           {lastRollRecommendation}
@@ -494,13 +466,6 @@ export default function GameBoard() {
     () =>
       finalDiceValues.reduce<number>((sum, value) => sum + (value ?? 0), 0),
     [finalDiceValues],
-  );
-  const lastRollSummary = useMemo(
-    () =>
-      hasAllDice
-        ? `Letzter Wurf: ${finalDiceValues.join(", ")} (Summe ${diceTotal}). Trage jetzt eine Kategorie ein.`
-        : null,
-    [diceTotal, finalDiceValues, hasAllDice],
   );
   const scoreSuggestions = useMemo(() => {
     if (!diceEnabled || !hasAllDice) return [];
@@ -744,7 +709,6 @@ export default function GameBoard() {
             onDiceChange={setDiceValues}
             onFinalRoll={setFinalDiceValues}
             resetToken={diceResetToken}
-            lastRollSummary={lastRollSummary}
             lastRollRecommendation={lastRollRecommendation}
           />
         )}

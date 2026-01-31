@@ -486,11 +486,6 @@ export default function GameBoard() {
     () => finalDiceValues.every((value) => value !== null),
     [finalDiceValues],
   );
-  const _diceTotal = useMemo(
-    () =>
-      finalDiceValues.reduce<number>((sum, value) => sum + (value ?? 0), 0),
-    [finalDiceValues],
-  );
   const scoreSuggestions = useMemo(() => {
     if (!diceEnabled || !hasAllDice) return [];
     const currentPlayer = players[currentPlayerIndex];

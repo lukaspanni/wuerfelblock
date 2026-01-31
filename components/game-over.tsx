@@ -16,17 +16,14 @@ export default function GameOver({ scores, onNewGame }: GameOverProps) {
       .map(([player, score]) => ({ player, score }))
       .sort((a, b) => b.score - a.score);
 
-    // Assign ranks (players with the same score get the same rank)
-    return sortedPlayers.map((player, index) => {
-      // Find rank: count how many players with strictly higher scores exist
-      let rank = 1;
-      for (let i = 0; i < index; i++) {
-        if (sortedPlayers[i].score > player.score) {
-          rank++;
-        }
-      }
-      return { ...player, rank };
-    });
+    // Assign ranks in a single pass (players with the same score get the same rank)
+    return sortedPlayers.reduce<Array<{ player: string; score: number; rank: number }>>((acc, player, index) => {
+      const rank = index === 0 || player.score < acc[index - 1].score 
+        ? index + 1 
+        : acc[index - 1].rank;
+      acc.push({ ...player, rank });
+      return acc;
+    }, []);
   }, [scores]);
 
   useEffect(() => {

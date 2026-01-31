@@ -263,9 +263,12 @@ const DiceRoller = ({
   const [rollingIndices, setRollingIndices] =
     useState<Set<number>>(createRollIndices);
   const animationFrameId = useRef<number | null>(null);
-  const animationState = useRef<{ startTime: number | null; lastTick: number }>({
+  const animationState = useRef<{
+    startTime: number | null;
+    lastUpdateTime: number;
+  }>({
     startTime: null,
-    lastTick: 0,
+    lastUpdateTime: 0,
   });
   const diceValuesRef = useRef(diceValues);
 
@@ -281,7 +284,7 @@ const DiceRoller = ({
       window.cancelAnimationFrame(animationFrameId.current);
     }
     animationFrameId.current = null;
-    animationState.current = { startTime: null, lastTick: 0 };
+    animationState.current = { startTime: null, lastUpdateTime: 0 };
   }, [resetToken]);
 
   useEffect(() => {
@@ -325,7 +328,7 @@ const DiceRoller = ({
     if (animationFrameId.current !== null) {
       window.cancelAnimationFrame(animationFrameId.current);
     }
-    animationState.current = { startTime: null, lastTick: 0 };
+    animationState.current = { startTime: null, lastUpdateTime: 0 };
     const step = (timestamp: number) => {
       const state = animationState.current;
       if (state.startTime === null) state.startTime = timestamp;
@@ -336,9 +339,9 @@ const DiceRoller = ({
         setRollingIndices(createRollIndices());
         return;
       }
-      if (timestamp - state.lastTick >= ROLL_ANIMATION_INTERVAL_MS) {
+      if (timestamp - state.lastUpdateTime >= ROLL_ANIMATION_INTERVAL_MS) {
         onDiceChange(rollValues(diceValuesRef.current));
-        state.lastTick = timestamp;
+        state.lastUpdateTime = timestamp;
       }
       animationFrameId.current = window.requestAnimationFrame(step);
     };
@@ -501,7 +504,7 @@ export default function GameBoard() {
     if (lastStoredDiceKey.current === diceKey) return;
     lastStoredDiceKey.current = diceKey;
     setStoredSuggestions(freshSuggestions);
-  }, [freshSuggestions]);
+  }, [finalDiceValues, freshSuggestions]);
   const lastRollRecommendation = useMemo(() => {
     if (!hasAllDice || scoreSuggestions.length === 0) return null;
     const topSuggestions = scoreSuggestions.slice(0, 3);

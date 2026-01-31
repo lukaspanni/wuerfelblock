@@ -477,8 +477,10 @@ export default function GameBoard() {
     if (hasChanges) {
       setScores(updatedScores);
     }
+    // `scores` is intentionally omitted from deps to avoid infinite loop
+    // This effect only initializes missing categories when players change
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [players, setScores]);
+  }, [players, setScores, categories]);
 
   const hasAllDice = useMemo(
     () => finalDiceValues.every((value) => value !== null),

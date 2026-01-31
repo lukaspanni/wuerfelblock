@@ -18,8 +18,13 @@ export default function GameOver({ scores, onNewGame }: GameOverProps) {
 
     // Assign ranks (players with the same score get the same rank)
     return sortedPlayers.map((player, index) => {
-      // Count how many players have a higher score
-      const rank = sortedPlayers.filter((p, i) => i < index && p.score > player.score).length + 1;
+      // Find rank: count how many players with strictly higher scores exist
+      let rank = 1;
+      for (let i = 0; i < index; i++) {
+        if (sortedPlayers[i].score > player.score) {
+          rank++;
+        }
+      }
       return { ...player, rank };
     });
   }, [scores]);

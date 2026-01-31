@@ -243,6 +243,26 @@ const getSuggestedScore = (
   }
 };
 
+const buildScoreSuggestions = (
+  playerScores: Record<string, number | null> | undefined,
+  diceValues: Array<number | null>,
+) => {
+  if (!playerScores) return [];
+  return categories
+    .filter((category) => playerScores[category.id] === null)
+    .map((category) => {
+      const suggested = getSuggestedScore(category.id, diceValues);
+      if (suggested === null) return null;
+      const scoreValue = Number(suggested);
+      if (!Number.isFinite(scoreValue)) return null;
+      return { name: category.name, score: scoreValue };
+    })
+    .filter(
+      (entry): entry is { name: string; score: number } => entry !== null,
+    )
+    .sort((a, b) => b.score - a.score);
+};
+
 type DiceRollerProps = {
   diceValues: Array<number | null>;
   onDiceChange: (dice: Array<number | null>) => void;
@@ -448,9 +468,6 @@ export default function GameBoard() {
     createDiceValues,
   );
   const [diceResetToken, setDiceResetToken] = useState(0);
-  const [storedSuggestions, setStoredSuggestions] = useState<
-    Array<{ name: string; score: number }>
-  >([]);
   const lastStoredDiceKey = useRef<string | null>(null);
 
   // Initialize scores
@@ -479,32 +496,17 @@ export default function GameBoard() {
       finalDiceValues.reduce<number>((sum, value) => sum + (value ?? 0), 0),
     [finalDiceValues],
   );
-  const freshSuggestions = useMemo(() => {
+  const scoreSuggestions = useMemo(() => {
     if (!diceEnabled || !hasAllDice) return [];
     const currentPlayer = players[currentPlayerIndex];
-    return categories
-      .filter((category) => scores[currentPlayer]?.[category.id] === null)
-      .map((category) => {
-        const suggested = getSuggestedScore(category.id, finalDiceValues);
-        if (suggested === null) return null;
-        const scoreValue = Number(suggested);
-        if (!Number.isFinite(scoreValue)) return null;
-        return { name: category.name, score: scoreValue };
-      })
-      .filter(
-        (entry): entry is { name: string; score: number } => entry !== null,
-      )
-      .sort((a, b) => b.score - a.score);
+    return buildScoreSuggestions(scores[currentPlayer], finalDiceValues);
   }, [diceEnabled, finalDiceValues, hasAllDice, players, currentPlayerIndex, scores]);
-  const scoreSuggestions =
-    freshSuggestions.length > 0 ? freshSuggestions : storedSuggestions;
   useEffect(() => {
-    if (freshSuggestions.length === 0) return;
+    if (!hasAllDice) return;
     const diceKey = finalDiceValues.join(",");
     if (lastStoredDiceKey.current === diceKey) return;
     lastStoredDiceKey.current = diceKey;
-    setStoredSuggestions(freshSuggestions);
-  }, [finalDiceValues, freshSuggestions]);
+  }, [finalDiceValues, hasAllDice]);
   const lastRollRecommendation = useMemo(() => {
     if (!hasAllDice || scoreSuggestions.length === 0) return null;
     const topSuggestions = scoreSuggestions.slice(0, 3);

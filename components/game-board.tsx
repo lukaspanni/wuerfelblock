@@ -171,6 +171,9 @@ const getDiceCounts = (values: number[]) => {
   // Index 0 is unused to align indices with die faces (1-6).
   const counts = Array.from({ length: 7 }, () => 0);
   values.forEach((value) => {
+    if (value < 1 || value > 6) {
+      return;
+    }
     counts[value] += 1;
   });
   return counts;

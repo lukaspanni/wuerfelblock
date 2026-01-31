@@ -300,8 +300,7 @@ const DiceRoller = ({
         if (!indicesToRoll.includes(index)) return value;
         return Math.floor(Math.random() * 6) + 1;
       });
-    const finalizeRoll = () => {
-      const finalValues = rollValues(diceValuesRef.current);
+    const finalizeRoll = (finalValues: Array<number | null>) => {
       onDiceChange(finalValues);
       const nextRollCount = rollCount + 1;
       setRollCount(nextRollCount);
@@ -314,7 +313,7 @@ const DiceRoller = ({
       typeof window !== "undefined" &&
       window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (prefersReducedMotion) {
-      finalizeRoll();
+      finalizeRoll(rollValues(diceValuesRef.current));
       return;
     }
     setRollingIndices(new Set(indicesToRoll));
@@ -328,7 +327,7 @@ const DiceRoller = ({
       const elapsed = timestamp - startTime;
       if (elapsed >= ROLL_ANIMATION_DURATION_MS) {
         animationFrameId.current = null;
-        finalizeRoll();
+        finalizeRoll(rollValues(diceValuesRef.current));
         setRollingIndices(createRollIndices());
         return;
       }
@@ -441,6 +440,9 @@ export default function GameBoard() {
     createDiceValues,
   );
   const [diceResetToken, setDiceResetToken] = useState(0);
+  const [storedSuggestions, setStoredSuggestions] = useState<
+    Array<{ name: string; score: number }>
+  >([]);
 
   // Initialize scores
   useEffect(() => {
@@ -468,8 +470,8 @@ export default function GameBoard() {
       finalDiceValues.reduce<number>((sum, value) => sum + (value ?? 0), 0),
     [finalDiceValues],
   );
-  const scoreSuggestions = useMemo(() => {
-    if (!diceEnabled || !hasAllDice) return [];
+  const freshSuggestions = useMemo(() => {
+    if (!diceEnabled || !hasAllDice) return null;
     const currentPlayer = players[currentPlayerIndex];
     return categories
       .filter((category) => scores[currentPlayer]?.[category.id] === null)
@@ -484,14 +486,13 @@ export default function GameBoard() {
         (entry): entry is { name: string; score: number } => entry !== null,
       )
       .sort((a, b) => b.score - a.score);
-  }, [
-    diceEnabled,
-    finalDiceValues,
-    hasAllDice,
-    players,
-    currentPlayerIndex,
-    scores,
-  ]);
+  }, [diceEnabled, finalDiceValues, hasAllDice, players, currentPlayerIndex, scores]);
+  const scoreSuggestions = freshSuggestions ?? storedSuggestions;
+  useEffect(() => {
+    if (freshSuggestions) {
+      setStoredSuggestions(freshSuggestions);
+    }
+  }, [freshSuggestions]);
   const lastRollRecommendation = useMemo(() => {
     if (!hasAllDice || scoreSuggestions.length === 0) return null;
     const topSuggestions = scoreSuggestions.slice(0, 3);

@@ -351,7 +351,7 @@ const DiceRoller = ({
     animationState.current = { startTime: null, lastUpdateTime: 0 };
     const step = (timestamp: number) => {
       const state = animationState.current;
-      if (state.startTime === null) state.startTime = timestamp;
+      if (state.startTime === null) state.startTime ??= timestamp;
       const elapsed = timestamp - state.startTime;
       if (elapsed >= ROLL_ANIMATION_DURATION_MS) {
         animationFrameId.current = null;
@@ -491,7 +491,7 @@ export default function GameBoard() {
     () => finalDiceValues.every((value) => value !== null),
     [finalDiceValues],
   );
-  const diceTotal = useMemo(
+  const _diceTotal = useMemo(
     () =>
       finalDiceValues.reduce<number>((sum, value) => sum + (value ?? 0), 0),
     [finalDiceValues],

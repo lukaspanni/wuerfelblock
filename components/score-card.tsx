@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef } from "react";
-import { Category } from "./game-board";
+import { type Category } from "./game-board";
 import { ScoreRow } from "./score-row";
 import { SectionTotalRow } from "./section-total-row";
 

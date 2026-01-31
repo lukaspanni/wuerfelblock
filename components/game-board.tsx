@@ -268,6 +268,11 @@ const DiceRoller = ({
     intervalId: number | null;
     timeoutId: number | null;
   }>({ intervalId: null, timeoutId: null });
+  const diceValuesRef = useRef(diceValues);
+
+  useEffect(() => {
+    diceValuesRef.current = diceValues;
+  }, [diceValues]);
 
   useEffect(() => {
     setKeptDice(createKeptDice());
@@ -301,7 +306,7 @@ const DiceRoller = ({
       }
       return indices;
     }, []);
-    const baseValues = diceValues;
+    const baseValues = diceValuesRef.current;
     const rollValues = () =>
       baseValues.map((value, index) => {
         if (!indicesToRoll.includes(index)) return value;
@@ -332,7 +337,7 @@ const DiceRoller = ({
     }
     const intervalId = window.setInterval(() => {
       onDiceChange(
-        diceValues.map((value, index) => {
+        diceValuesRef.current.map((value, index) => {
           if (!indicesToRoll.includes(index)) return value;
           return Math.floor(Math.random() * 6) + 1;
         }),
@@ -404,7 +409,7 @@ const DiceRoller = ({
           >
             <span
               className={
-                rollingIndices.has(index) ? "opacity-70" : ""
+                rollingIndices.has(index) ? "motion-safe:animate-pulse" : ""
               }
             >
               {value ?? "-"}

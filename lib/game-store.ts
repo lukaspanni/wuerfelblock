@@ -1,4 +1,6 @@
 import { createStore } from "zustand/vanilla";
+import { immer } from "zustand/middleware/immer";
+import { persist } from "zustand/middleware";
 
 export type GameState =
   | "landing-page"
@@ -64,142 +66,155 @@ export const initialGameState: GameStoreState = {
 
 // Create the store outside of components
 export const createGameStore = (initState: GameStoreState = initialGameState) =>
-  createStore<GameStore>()((set, get) => ({
-    ...initState,
+  createStore<GameStore>()(
+    persist(
+      immer((set, get) => ({
+        ...initState,
 
-    // State setters
-    setGameState: (state) => set({ gameState: state }),
-    setPlayers: (players) => set({ players }),
-    setScores: (scores) => set({ scores }),
-    setStats: (stats) => set({ stats }),
-    setCurrentPlayerIndex: (index) => set({ currentPlayerIndex: index }),
-    setFinalScores: (finalScores) => set({ finalScores }),
-    setDiceEnabled: (diceEnabled) => set({ diceEnabled }),
+        // State setters
+        setGameState: (state) =>
+          set((draft: GameStore) => {
+            draft.gameState = state;
+          }),
+        setPlayers: (players) =>
+          set((draft: GameStore) => {
+            draft.players = players;
+          }),
+        setScores: (scores) =>
+          set((draft: GameStore) => {
+            draft.scores = scores;
+          }),
+        setStats: (stats) =>
+          set((draft: GameStore) => {
+            draft.stats = stats;
+          }),
+        setCurrentPlayerIndex: (index) =>
+          set((draft: GameStore) => {
+            draft.currentPlayerIndex = index;
+          }),
+        setFinalScores: (finalScores) =>
+          set((draft: GameStore) => {
+            draft.finalScores = finalScores;
+          }),
+        setDiceEnabled: (diceEnabled) =>
+          set((draft: GameStore) => {
+            draft.diceEnabled = diceEnabled;
+          }),
 
-    // Complex actions
-    updatePlayerScore: (player, category, value) => {
-      const currentScores = { ...get().scores };
-      const currentPlayerIndex = get().currentPlayerIndex;
+        // Complex actions
+        updatePlayerScore: (player, category, value) => {
+          const currentPlayerIndex = get().currentPlayerIndex;
 
-      if (!currentScores[player]) {
-        currentScores[player] = {};
-      }
-      set({
-        lastMove: {
-          player,
-          category,
-          score: value,
-          previousPlayerIndex: currentPlayerIndex,
+          set((draft: GameStore) => {
+            if (!draft.scores[player]) {
+              draft.scores[player] = {};
+            }
+            draft.lastMove = {
+              player,
+              category,
+              score: value,
+              previousPlayerIndex: currentPlayerIndex,
+            };
+            draft.undoneMove = null;
+            draft.scores[player][category] = value;
+          });
+
+          return get().scores;
         },
-        undoneMove: null,
-      });
-      currentScores[player][category] = value;
-      set({ scores: currentScores });
 
-      // Return the updated scores
-      return currentScores;
-    },
+        updateStats: (newScores) => {
+          set((draft: GameStore) => {
+            Object.entries(newScores).forEach(([player, score]) => {
+              draft.stats[player] = score;
+            });
+          });
+        },
 
-    updateStats: (newScores) => {
-      set((state) => {
-        const updatedStats = { ...state.stats };
-        Object.entries(newScores).forEach(([player, score]) => {
-          updatedStats[player] = score;
-        });
-        return { stats: updatedStats };
-      });
-    },
+        nextPlayer: () => {
+          set((draft: GameStore) => {
+            draft.currentPlayerIndex =
+              (draft.currentPlayerIndex + 1) % draft.players.length;
+          });
+        },
 
-    nextPlayer: () => {
-      set((state) => ({
-        currentPlayerIndex:
-          (state.currentPlayerIndex + 1) % state.players.length,
-      }));
-    },
+        // Game flow methods
+        startGame: (playerNames) => {
+          // Initialize scores structure
+          const initialScores: Record<
+            string,
+            Record<string, number | null>
+          > = {};
+          playerNames.forEach((player) => {
+            initialScores[player] = {};
+          });
 
-    // Game flow methods
-    startGame: (playerNames) => {
-      // Initialize scores structure
-      const initialScores: Record<string, Record<string, number | null>> = {};
-      playerNames.forEach((player) => {
-        initialScores[player] = {};
-      });
+          set((draft: GameStore) => {
+            draft.players = playerNames;
+            draft.scores = initialScores;
+            draft.gameState = "game-running";
+            draft.currentPlayerIndex = 0;
+          });
+        },
 
-      set({
-        players: playerNames,
-        scores: initialScores,
-        gameState: "game-running",
-        currentPlayerIndex: 0,
-      });
-    },
+        endGame: (scores) => {
+          set((draft: GameStore) => {
+            Object.entries(scores).forEach(([player, score]) => {
+              draft.stats[player] = score;
+            });
+            draft.finalScores = scores;
+            draft.gameState = "game-over";
+          });
+        },
 
-    endGame: (scores) => {
-      set((state) => {
-        // Update statistics
-        const newStats = { ...state.stats };
-        Object.entries(scores).forEach(([player, score]) => {
-          newStats[player] = score;
-        });
+        resetGame: () => {
+          set((draft: GameStore) => {
+            draft.gameState = "history-stats";
+            draft.currentPlayerIndex = 0;
+            draft.scores = {};
+            draft.finalScores = {};
+            draft.lastMove = null;
+            draft.undoneMove = null;
+          });
+        },
 
-        return {
-          finalScores: scores,
-          gameState: "game-over",
-          stats: newStats,
-        };
-      });
-    },
+        undoLastMove: () => {
+          const { lastMove } = get();
+          if (!lastMove) return false;
 
-    resetGame: () => {
-      set({
-        gameState: "history-stats",
-        currentPlayerIndex: 0,
-        scores: {},
-        finalScores: {},
-        lastMove: null,
-        undoneMove: null,
-      });
-    },
+          set((draft: GameStore) => {
+            if (draft.scores[lastMove.player]) {
+              draft.scores[lastMove.player][lastMove.category] = null;
+            }
+            draft.currentPlayerIndex = lastMove.previousPlayerIndex;
+            draft.undoneMove = lastMove;
+            draft.lastMove = null;
+          });
 
-    undoLastMove: () => {
-      const { lastMove, scores } = get();
-      if (!lastMove) return false;
-      const updatedScores = { ...scores };
+          return true;
+        },
 
-      // Remove the last score
-      if (updatedScores[lastMove.player])
-        updatedScores[lastMove.player][lastMove.category] = null;
+        redoLastMove: () => {
+          const { undoneMove } = get();
+          if (!undoneMove) return false;
 
-      // Store the undone move for potential redo
-      set({
-        scores: updatedScores,
-        currentPlayerIndex: lastMove.previousPlayerIndex,
-        undoneMove: lastMove,
-        lastMove: null,
-      });
+          set((draft: GameStore) => {
+            if (!draft.scores[undoneMove.player]) {
+              draft.scores[undoneMove.player] = {};
+            }
+            draft.scores[undoneMove.player][undoneMove.category] =
+              undoneMove.score;
+            draft.currentPlayerIndex =
+              (undoneMove.previousPlayerIndex + 1) % draft.players.length;
+            draft.lastMove = undoneMove;
+            draft.undoneMove = null;
+          });
 
-      return true;
-    },
-
-    redoLastMove: () => {
-      const { undoneMove, scores } = get();
-      if (!undoneMove) return false;
-      const updatedScores = { ...scores };
-
-      // Reapply the undone score
-      if (!updatedScores[undoneMove.player])
-        updatedScores[undoneMove.player] = {};
-
-      updatedScores[undoneMove.player][undoneMove.category] = undoneMove.score;
-
-      // Save the move again as last move for being able to undo it again
-      set({
-        scores: updatedScores,
-        currentPlayerIndex:
-          (undoneMove.previousPlayerIndex + 1) % get().players.length,
-        lastMove: undoneMove,
-        undoneMove: null,
-      });
-
-      return true;
-    },
-  }));
+          return true;
+        },
+      })),
+      {
+        name: "wuerfelblock-game-settings",
+        partialize: (state) => ({ diceEnabled: state.diceEnabled }),
+      },
+    ),
+  );

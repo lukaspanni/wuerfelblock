@@ -59,7 +59,7 @@ export const initialGameState: GameStoreState = {
   finalScores: {},
   lastMove: null,
   undoneMove: null,
-  diceEnabled: false,
+  diceEnabled: true,
 };
 
 // Create the store outside of components

@@ -462,16 +462,23 @@ export default function GameBoard() {
     let hasChanges = false;
 
     players.forEach((player) => {
-      if (!updatedScores[player]) {
-        updatedScores[player] = {};
-        hasChanges = true;
-      }
+      // The store is immer-backed, so `scores` and its nested objects are
+      // frozen. Always work on a fresh copy instead of mutating in place.
+      const existingPlayerScores = updatedScores[player];
+      const playerScores = { ...existingPlayerScores };
+      let playerHasChanges = !existingPlayerScores;
+
       categories.forEach((category) => {
-        if (!(category.id in updatedScores[player])) {
-          updatedScores[player][category.id] = null;
-          hasChanges = true;
+        if (!(category.id in playerScores)) {
+          playerScores[category.id] = null;
+          playerHasChanges = true;
         }
       });
+
+      if (playerHasChanges) {
+        updatedScores[player] = playerScores;
+        hasChanges = true;
+      }
     });
 
     if (hasChanges) {

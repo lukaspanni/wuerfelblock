@@ -46,20 +46,40 @@ export default function PlayerForm({ onStartGame }: PlayerFormProps) {
     setPlayers(newPlayers);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    // Filter out empty player names
-    const validPlayers = players.filter((name) => name.trim() !== "");
+  // Scores are keyed by player name, so names must be unique and trimmed.
+  const startGameWithPlayers = (names: string[]) => {
+    const validPlayers = names
+      .map((name) => name.trim())
+      .filter((name) => name !== "");
 
     if (validPlayers.length === 0) {
       setError("Bitte geben Sie mindestens einen Spielernamen ein");
       return;
     }
 
+    const duplicates = [
+      ...new Set(
+        validPlayers.filter(
+          (name, index) => validPlayers.indexOf(name) !== index,
+        ),
+      ),
+    ];
+    if (duplicates.length > 0) {
+      setError(
+        `Spielernamen müssen eindeutig sein. Doppelt vergeben: ${duplicates.join(", ")}`,
+      );
+      return;
+    }
+
+    setError("");
     // Save current valid players for quick start
     saveToLocalStorage("lastGamePlayers", validPlayers);
     onStartGame(validPlayers);
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    startGameWithPlayers(players);
   };
 
   const handleQuickStart = () => {
@@ -68,7 +88,7 @@ export default function PlayerForm({ onStartGame }: PlayerFormProps) {
       lastGamePlayersSchema,
     );
     if (ok && result) {
-      onStartGame(result);
+      startGameWithPlayers(result);
     } else {
       setError("Kein gespeichertes Spiel gefunden");
     }

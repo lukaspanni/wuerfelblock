@@ -30,6 +30,7 @@ export default function Scorekeeper() {
   } = useGameStore((state) => state);
 
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const hasStats = Object.keys(stats).length > 0;
 
   useEffect(() => {
     // Load past scores on initial render
@@ -85,8 +86,10 @@ export default function Scorekeeper() {
     setGameState("game-init");
   };
 
+  // min-w-0 keeps the wide score table scrolling inside its own container
+  // instead of stretching this flex item and the whole page
   return (
-    <div className="max-w-xl flex-1 lg:max-w-3xl 2xl:max-w-7xl">
+    <div className="max-w-xl min-w-0 flex-1 lg:max-w-3xl 2xl:max-w-7xl">
       <h1
         className="text-primary mb-6 text-center text-3xl font-bold"
         onClick={() => {
@@ -102,9 +105,7 @@ export default function Scorekeeper() {
 
       {(gameState === "landing-page" || gameState === "history-stats") && (
         <Card>
-          {(gameState === "history-stats" && <PlayerStats stats={stats} />) || (
-            <WelcomeComponent />
-          )}
+          {hasStats ? <PlayerStats stats={stats} /> : <WelcomeComponent />}
           <CardFooter>
             <StartGameButton onStartGame={handleStartGameClick} />
           </CardFooter>
@@ -126,7 +127,8 @@ export default function Scorekeeper() {
         cancelText="Nein, weitermachen"
         onClose={() => setShowConfirmDialog(false)}
         onConfirm={() => {
-          setGameState("landing-page");
+          // Discard the abandoned game instead of leaving its scores in the store
+          resetGame();
           setShowConfirmDialog(false);
         }}
       />

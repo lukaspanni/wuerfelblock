@@ -1,6 +1,5 @@
 "use client";
 
-import { useRef } from "react";
 import { type Category } from "./game-board";
 import { ScoreRow } from "./score-row";
 import { SectionTotalRow } from "./section-total-row";
@@ -22,7 +21,6 @@ export default function ScoreCard({
   currentPlayer,
   onCategorySelect,
 }: ScoreCardProps) {
-  const tableRef = useRef<HTMLDivElement>(null);
   const calculateUpperTotal = (player: string) =>
     categories
       .filter((c) => c.section === "upper")
@@ -30,12 +28,12 @@ export default function ScoreCard({
   const getBonus = (upperTotal: number) => (upperTotal >= 63 ? 35 : 0);
 
   return (
-    <div className="overflow-x-auto" ref={tableRef}>
+    <div className="overflow-x-auto">
       <table className="min-w-full border-collapse">
         <thead>
           <tr className="bg-muted">
             <th className="border-border/25 sticky left-0 min-w-[120px] border-r px-3 py-2 text-left text-sm font-medium">
-              Category
+              Kategorie
             </th>
             {players.map((player) => (
               <th
